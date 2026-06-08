@@ -31,7 +31,13 @@
   };
   AuditLog.prototype._save = function () {
     try { if (this.store) this.store.set(this.key, JSON.stringify(this.entries.slice(-this.cap))); } catch (_) {}
+    this._dirty = false;
   };
+  // ── append is O(1): the hash chain only folds the PREVIOUS entry forward, so
+  //    extending the chain never re-touches history. Persistence is COALESCED
+  //    (batched to the end of the event-loop turn) instead of rewriting the whole
+  //    log on every call — turning a tight burst of N appends from O(N²) into
+  //    O(N) total. flush() forces an immediate, durable write. ──────────────────
   AuditLog.prototype._appendRaw = function (actor, role, action, target, detail) {
     const prev = this.entries.length ? this.entries[this.entries.length - 1] : null;
     const seq = prev ? prev.seq + 1 : 0;
@@ -46,8 +52,19 @@
 
   AuditLog.prototype.append = function (actor, role, action, target, detail) {
     const e = this._appendRaw(actor || 'system', role || '-', action, target || '-', detail || '');
-    this._save();
+    this._dirty = true; this._scheduleSave();
     return e;
+  };
+  AuditLog.prototype._scheduleSave = function () {
+    if (this._saveTimer != null) return;
+    const self = this;
+    if (typeof setTimeout === 'function') { this._saveTimer = setTimeout(function () { self._saveTimer = null; if (self._dirty) self._save(); }, 0); }
+    else { this._save(); }
+  };
+  AuditLog.prototype.flush = function () {
+    if (this._saveTimer != null && typeof clearTimeout === 'function') { clearTimeout(this._saveTimer); this._saveTimer = null; }
+    if (this._dirty) this._save();
+    return this;
   };
 
   // Recompute the chain; report the first index that fails (tamper detection).

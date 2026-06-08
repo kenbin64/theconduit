@@ -36,7 +36,7 @@ const benches = [];
 { const sim = new E.Simulator(TOP.buildTopology('city'), { speed: 200 }); for (let i = 0; i < 200; i++) sim.tick(16);
   benches.push(bench('Engine ticks (city)', 4000, () => { for (let i = 0; i < 4000; i++) sim.tick(16); })); }
 { const log = new AUD.AuditLog({ store: REG.memoryStore(), ns: 'b' });
-  benches.push(bench('Audit appends (hash-chained)', 2000, () => { for (let i = 0; i < 2000; i++) log.append('U', 'r', 'view', 'd', 'e' + i); }));
+  benches.push(bench('Audit appends + persist (O(1) amortized)', 50000, () => { for (let i = 0; i < 50000; i++) log.append('U', 'r', 'view', 'd', 'e' + i); log.flush(); }));
   benches.push(bench('Audit chain verify (full)', log.entries.length, () => { log.verify(); })); }
 { const seal = new SEAL.ManifoldSeal({ key: 'k' });
   benches.push(bench('Manifold seal ingest (sign+fold)', 5000, () => { for (let i = 0; i < 5000; i++) seal.ingest({ i: i, v: 'p' + i }, 'U', 'r', null); })); }

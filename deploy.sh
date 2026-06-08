@@ -28,8 +28,9 @@ VPS_IP="172.81.62.217"
 REMOTE_DIR="/home/butterfly/theconduit"
 SERVICE="theconduit"
 APP_PORT="8787"                 # Node app port (localhost only; Caddy proxies to it)
-DOMAIN=""                       # e.g. theconduit.example.com  → real Let's Encrypt cert
-TLS_EMAIL=""                    # email for Let's Encrypt expiry notices (set with DOMAIN)
+DOMAIN="theconduit.me"          # → real, auto-renewing Let's Encrypt certificate
+TLS_EMAIL=""                    # optional: your email for Let's Encrypt expiry notices
+                                # (left blank so no personal email is committed to the public repo)
 NODE_BIN="node"
 
 SELF_DIR="$(cd "$(dirname "$0")" && pwd)"; cd "$SELF_DIR"

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>The Conduit — Live Test Runner</title>
+<style>
+:root{--bg:#070b12;--panel:#0e1622;--panel2:#121d2c;--edge:#1f2e42;--txt:#d8e6f5;--mut:#7f93ab;--acc:#3fd0ff;--ok:#27e07a;--warn:#ffc233;--bad:#ff3b4e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.45}
+.wrap{max-width:1040px;margin:0 auto;padding:24px}
+h1{font-size:22px;margin:0 0 2px}.sub{color:var(--mut);font-size:12.5px;margin-bottom:18px}.eq{color:var(--acc);font-family:ui-monospace,monospace}
+.card{background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin:0 0 12px}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+button{background:var(--acc);color:#04141d;border:0;border-radius:9px;padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+.btn2{background:var(--panel2);color:var(--txt);border:1px solid var(--edge);font-weight:600;font-size:13px;padding:9px 14px}
+.counters{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.counters .k{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut)}
+.counters .v{font-size:26px;font-weight:800;font-family:ui-monospace,monospace}
+.prog{height:8px;background:var(--edge);border-radius:5px;overflow:hidden;flex:1;min-width:160px}
+.progfill{height:100%;width:0;background:var(--ok);transition:width .15s}
+.suite{margin-bottom:10px}
+.suite-h{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--acc);border-bottom:1px solid var(--edge);padding:6px 0 4px;margin-bottom:2px}
+.trow{display:flex;align-items:center;gap:10px;padding:4px 0;font-size:13px;border-bottom:1px solid #10192683;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(-2px)}to{opacity:1}}
+.trow .ic{width:16px;text-align:center;font-weight:800}.trow.ok .ic{color:var(--ok)}.trow.bad .ic{color:var(--bad)}
+.trow .tn{flex:1}.trow .tm{color:var(--mut);font-family:ui-monospace,monospace;font-size:11px}
+.tf{flex-basis:100%;color:var(--bad);font-family:ui-monospace,monospace;font-size:11px;padding:2px 0 2px 26px}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-weight:800;font-size:13px}
+.pill.ok{background:rgba(39,224,122,.16);color:var(--ok)}.pill.bad{background:rgba(255,59,78,.16);color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}td,th{text-align:left;padding:5px 8px;border-bottom:1px solid var(--edge)}th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase}
+.mono{font-family:ui-monospace,Consolas,monospace}
+.b-row{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px}.b-lab{width:210px;color:var(--mut);font-family:ui-monospace,monospace}.b-bar{height:14px;border-radius:3px;background:var(--acc)}.b-val{font-family:ui-monospace,monospace}
+.chip{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;background:#0a1420;border:1px solid var(--edge);border-radius:5px;padding:2px 6px;color:var(--acc)}.chip.div{background:#3a1620;color:#ff8a9a;border-color:var(--bad)}.arr{color:var(--mut);margin:0 3px}
+.note{color:var(--mut);font-size:12px}.ok{color:var(--ok)}.bad{color:var(--bad)}
+.doc h3{font-size:13px;margin:14px 0 4px;color:var(--txt)}.doc ul{margin:4px 0 10px;padding-left:18px}.doc li{margin:2px 0;font-size:12.5px}
+.foot{color:var(--mut);font-size:11px;text-align:center;margin-top:10px}
+.hidden{display:none}
+</style>
+</head>
+<body><div class="wrap">
+<h1>⨳ The Conduit / HydroManifold — Live Test Runner</h1>
+<div class="sub">Runs against the real loaded modules in <b>your browser, in real time</b>. Health primitive <span class="eq">z = x·y</span>. The full CI suite is <span class="mono">node tests/run.js</span> (123 checks incl. stress/scale); this is the demo-weight live edition.</div>
+
+<div class="card">
+  <div class="bar" style="margin-bottom:12px"><button id="runbtn">▶ Run tests</button><span id="status" class="note">Loading modules…</span></div>
+  <div class="counters">
+    <div><div class="k">Passed</div><div class="v ok" id="c-pass">0</div></div>
+    <div><div class="k">Failed</div><div class="v bad" id="c-fail">0</div></div>
+    <div><div class="k">Run</div><div class="v" id="c-run">0/0</div></div>
+    <div><div class="k">Elapsed</div><div class="v" id="c-time" style="font-size:18px">—</div></div>
+    <div class="prog"><div class="progfill" id="prog"></div></div>
+  </div>
+  <div id="summary" style="margin-top:10px"></div>
+</div>
+
+<div class="card"><h2>Live results</h2><div id="results"><div class="note">Press <b>Run tests</b> to execute the suite in your browser.</div></div></div>
+
+<div class="card hidden" id="bench-card"><h2>Benchmarks — throughput in your browser</h2><div id="bench"></div><div class="note" id="bench-note"></div></div>
+
+<div class="card hidden" id="geo-card"><h2>Geometry proof — TPMS minimal surfaces (mean curvature |H|)</h2><div id="geo"></div>
+  <div class="note">Computed live by finite differences on the level set. Schwarz P/D &amp; Gyroid are <b>minimal</b> (|H|≈0); the control sphere reads ≈1/R. Refs: Schwarz 1933; Schoen NASA TN D-5541 (1970).</div></div>
+
+<div class="card hidden" id="int-card"><h2>Manifold integrity — shape-fold &amp; tamper-evidence</h2><div id="integ"></div></div>
+
+<div class="card doc"><h2>Documentation — full coverage</h2>
+  <div class="note">This page runs a curated, browser-safe subset for live demonstration. The complete suite (run in CI / locally with <span class="mono">node tests/run.js</span>) is <b>123 checks</b> across the following, with exit-0 = green:</div>
+  <h3>Unit — the tamper-evident spine (<span class="mono">tests/unit-platform.test.js</span>)</h3>
+  <ul>
+    <li><b>Manifold seal</b> — keyed digest determinism; a sealed record verifies; tampering any field breaks it; the shape folds forward and <b>chains</b> (changing one early parameter diverges every later signature); encrypt/decrypt round-trip; encrypted-store wrapper.</li>
+    <li><b>Audit log</b> — append builds a verifiable hash chain; tampering a <i>past</i> entry is detected and pinpointed; CSV export for FOIA/discovery.</li>
+    <li><b>RBAC</b> — administrator (*), least-privilege (operator ≠ regulations), view:* wildcard, default-deny, zero-trust (security.classified).</li>
+    <li><b>Failsafe AI</b> — logic gates; deterministic ground-truth verdict; cross-check agrees with truth and <b>blocks hallucinations</b>; invariants (low-pressure advisory); drift monitor <b>quarantines</b> to deterministic-only.</li>
+    <li><b>Registry</b> (schema-driven CRUD + onChange hook), <b>People</b> (non-PII id, severity-threshold alert routing, PII-free dispatch), <b>Deploy</b> (GREEN/AMBER/RED/BLACK rollup, plan from CMS), <b>Notify</b> (email/SMS/webhook/IPAWS render, ≤160-char SMS, idempotency, graceful real-transport failure), <b>Analytics</b> (least-squares, σ, p95, anomaly flags), <b>Schemas</b> (mandated collections + 8 must-have sensors + fire/regulator/farm recipients).</li>
+  </ul>
+  <h3>Geometry / science PROOFS (<span class="mono">tests/geometry.test.js</span>)</h3>
+  <ul>
+    <li><b>z = x·y</b> — bounded/symmetric/monotonic; a failing axis collapses z (and would-be averaging is shown to be the bug).</li>
+    <li><b>z = x·y²</b> — quadratic axis ~2× more sensitive; justified by the C(n,2)=n(n−1)/2 = O(n²) combinatorics (doubling size &gt;2× the coupling).</li>
+    <li><b>Series reliability</b> R = ∏Rᵢ (weakest-link); <b>MTBF</b> → exponential annual failure rate.</li>
+    <li><b>Schwarz P / D &amp; Gyroid</b> — proven <b>triply periodic</b> and <b>minimal</b> (mean |H|≈0 on the level set), discriminated against a non-minimal sphere (~59×).</li>
+  </ul>
+  <h3>Scenarios (<span class="mono">tests/scenarios.test.js</span>)</h3>
+  <ul>
+    <li>Catastrophic multi-fault (break + pump-trip + quality) collapse and <b>recovery</b>; worst-point dominance (no hiding behind healthy peers); failsafe quarantine that <b>won't silently clear</b>; end-to-end tamper-evidence; go-live gate <b>refusing a lapsed prerequisite</b>.</li>
+  </ul>
+  <h3>Stress &amp; scale (<span class="mono">tests/stress.test.js</span>)</h3>
+  <ul>
+    <li>Region scale (millions of sensors, bounded representative render); 5 000-tick stability (no NaN); audit + seal under thousands of events; performance bounds; a fault in <b>every</b> station at once stays finite and reads degraded.</li>
+  </ul>
+  <h3>Plus</h3>
+  <ul><li>The engine simulator suite (<span class="mono">test_suite.js</span>, 27) and the licensing / go-live gate suite (<span class="mono">tools/test-license.js</span>, 36).</li></ul>
+</div>
+
+<div class="foot">The Conduit · Powered by Butterflyfx Manifold · live runner</div>
+</div>
+
+<!-- modules (attach to window) -->
+<script src="sensors.js"></script>
+<script src="manifold.js"></script>
+<script src="topology.js"></script>
+<script src="engine.js"></script>
+<script src="license.js"></script>
+<script src="deploy.js"></script>
+<script src="platform/seal.js"></script>
+<script src="platform/registry.js"></script>
+<script src="platform/audit.js"></script>
+<script src="platform/rbac.js"></script>
+<script src="platform/verify.js"></script>
+<script src="platform/people.js"></script>
+<script src="platform/notify.js"></script>
+<script src="platform/analytics.js"></script>
+<script src="platform/schemas.js"></script>
+<script src="browser-tests.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); };
+  var T = window.HM_TESTS;
+  if (!T) { $('status').textContent = 'Failed to load test module.'; return; }
+  $('status').textContent = T.testCount + ' live checks across ' + T.suiteCount + ' suites ready.';
+  $('c-run').textContent = '0/' + T.testCount;
+
+  var running = false;
+  $('runbtn').addEventListener('click', runAll);
+
+  async function runAll() {
+    if (running) return; running = true;
+    $('runbtn').disabled = true; $('runbtn').textContent = 'Running…'; $('status').textContent = 'Running in your browser…';
+    $('results').innerHTML = ''; $('summary').innerHTML = '';
+    ['bench-card', 'geo-card', 'int-card'].forEach(function (id) { $(id).classList.add('hidden'); });
+    var pass = 0, fail = 0, done = 0, total = T.testCount, curSuite = null;
+    await T.run(function (ev) {
+      if (ev.type === 'suite') { curSuite = document.createElement('div'); curSuite.className = 'suite'; curSuite.innerHTML = '<div class="suite-h">' + esc(ev.name) + '</div>'; $('results').appendChild(curSuite); }
+      else if (ev.type === 'test') {
+        done++; ev.pass ? pass++ : fail++;
+        var row = document.createElement('div'); row.className = 'trow ' + (ev.pass ? 'ok' : 'bad');
+        row.innerHTML = '<span class="ic">' + (ev.pass ? '✓' : '✗') + '</span><span class="tn">' + esc(ev.name) + '</span><span class="tm">' + ev.ms.toFixed(1) + 'ms</span>' + (ev.pass ? '' : '<div class="tf">' + esc(ev.detail) + '</div>');
+        (curSuite || $('results')).appendChild(row);
+        $('c-pass').textContent = pass; $('c-fail').textContent = fail; $('c-run').textContent = done + '/' + total;
+        var pf = $('prog'); pf.style.width = (100 * done / total) + '%'; pf.style.background = fail ? 'var(--bad)' : 'var(--ok)';
+        row.scrollIntoView({ block: 'nearest' });
+      } else if (ev.type === 'done') {
+        $('c-time').textContent = (ev.ms / 1000).toFixed(2) + 's';
+        $('summary').innerHTML = '<span class="pill ' + (ev.fail ? 'bad' : 'ok') + '">' + (ev.fail ? '✗ ' + ev.fail + ' FAILED' : '✓ ALL ' + ev.pass + ' PASSED') + '</span> <span class="note">in ' + (ev.ms / 1000).toFixed(2) + 's</span>';
+      }
+    });
+
+    // benchmarks
+    $('bench-card').classList.remove('hidden'); $('bench').innerHTML = ''; var benches = [];
+    await T.benchmarks(function (b) { benches.push(b); renderBench(benches); });
+    $('bench-note').textContent = 'Single-thread, no native deps. Audit append is O(1) amortized (coalesced persistence); verify is O(n).';
+
+    // geometry + integrity
+    $('geo-card').classList.remove('hidden'); renderGeo(T.geometry());
+    $('int-card').classList.remove('hidden'); renderInteg(T.integrity());
+
+    running = false; $('runbtn').disabled = false; $('runbtn').textContent = '▶ Run tests again'; $('status').textContent = 'Done.';
+  }
+
+  function renderBench(rows) {
+    var max = Math.max.apply(null, rows.map(function (r) { return r.ops; })) || 1;
+    $('bench').innerHTML = rows.map(function (r) {
+      var w = Math.max(2, 360 * r.ops / max);
+      return '<div class="b-row"><span class="b-lab">' + esc(r.label) + '</span><span class="b-bar" style="width:' + w + 'px"></span><span class="b-val">' + r.ops.toLocaleString() + ' /s</span></div>';
+    }).join('');
+  }
+  function renderGeo(g) {
+    var max = Math.max.apply(null, g.map(function (r) { return r.meanH; })) || 1;
+    $('geo').innerHTML = g.map(function (r) {
+      var w = Math.max(2, 360 * r.meanH / max), col = r.minimal ? 'var(--ok)' : 'var(--bad)';
+      return '<div class="b-row"><span class="b-lab">' + esc(r.name) + '</span><span class="b-bar" style="width:' + w + 'px;background:' + col + '"></span><span class="b-val">|H|=' + r.meanH.toFixed(4) + (r.minimal ? '  ✓ minimal' : '  ✗ not minimal') + '</span></div>';
+    }).join('');
+  }
+  function renderInteg(d) {
+    function row(sh, ref) { return sh.map(function (s, i) { return '<span class="chip' + (ref && ref[i] !== s ? ' div' : '') + '">' + esc(s) + '</span>'; }).join('<span class="arr">→</span>'); }
+    $('integ').innerHTML =
+      '<div class="note" style="margin-bottom:6px">Each ingested parameter folds the global manifold <b>shape</b> forward — a keyed function of the entire ordered history. Changing one early parameter diverges every later shape (red).</div>' +
+      '<table><tbody><tr><td class="note" style="width:130px">genesis run</td><td>' + row(d.shapesA) + '</td></tr>' +
+      '<tr><td class="note">first param altered</td><td>' + row(d.shapesB, d.shapesA) + '</td></tr></tbody></table>' +
+      '<table style="margin-top:12px"><tbody><tr><td>Audit chain (40 events)</td><td class="mono">head ' + esc(d.auditHead) + ' · <span class="ok">verify ✓ intact</span></td></tr>' +
+      '<tr><td>Tamper detection</td><td class="mono"><span class="bad">✗ broken at #' + d.brokenAt + '</span> — any edit to a past entry is caught</td></tr></tbody></table>';
+  }
+})();
+</script>
+</body>
+</html>

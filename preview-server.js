@@ -104,6 +104,8 @@ const server = http.createServer((req, res) => {
   // ── authenticated: serve static files ──
   let rel = decodeURIComponent(url);
   if (rel === '/' || rel === '' || rel === '/login') rel = '/index.html';   // main page = the simulation
+  if (rel === '/testreport' || rel === '/testreport/') rel = '/testreport.html';   // live test runner endpoint
+  if (rel === '/report' || rel === '/report/') rel = '/report.html';               // static report endpoint
   const full = path.normalize(path.join(ROOT, rel));
   if (!full.startsWith(ROOT)) { res.writeHead(403); return res.end('403'); }
   if (path.basename(full) === 'preview-server.js') { res.writeHead(404); return res.end('404'); }

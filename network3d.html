@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>The Conduit — 3D Water-Network Health</title>
+<style>
+:root{--bg:#070b12;--panel:#0e1622;--panel2:#121d2c;--edge:#1f2e42;--txt:#d8e6f5;--mut:#7f93ab;--acc:#3fd0ff;--ok:#27e07a;--warn:#ffc233;--alarm:#ff7a2f;--crit:#ff3b4e}
+*{box-sizing:border-box}html,body{margin:0;height:100%}body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;font-size:14px;overflow:hidden}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:9px 14px;background:#0b1422;border-bottom:1px solid var(--edge)}
+.brand{font-weight:800}.brand .eq{color:var(--acc);font-family:ui-monospace,monospace}.brand small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.btn{background:var(--panel2);color:var(--txt);border:1px solid var(--edge);border-radius:8px;padding:7px 11px;font:inherit;font-size:13px;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--acc)}.btn.on{background:var(--acc);color:#04141d;font-weight:700;border-color:var(--acc)}
+.spacer{flex:1}
+.layout{display:grid;grid-template-columns:1fr 320px;height:calc(100% - 46px)}
+@media(max-width:820px){.layout{grid-template-columns:1fr}}
+#stage{position:relative;background:radial-gradient(ellipse at 50% 30%,#0c1726,#070b12)}
+#net{width:100%;height:100%;display:block;cursor:grab}#net:active{cursor:grabbing}
+.hint{position:absolute;left:12px;bottom:10px;color:var(--mut);font-size:11px;pointer-events:none}
+.side{border-left:1px solid var(--edge);background:#0a111b;overflow:auto;padding:12px}
+@media(max-width:820px){.side{border-left:none;border-top:1px solid var(--edge)}}
+.card{background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:12px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut)}
+.kv{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--edge);font-size:12.5px}.kv .k{color:var(--mut)}.kv .v{font-family:ui-monospace,monospace;font-weight:700}
+.bar{display:flex;gap:6px;flex-wrap:wrap}
+.legrow{display:flex;align-items:center;gap:8px;font-size:12px;margin:3px 0}.sw{width:26px;height:10px;border-radius:3px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%}
+.grad{height:12px;border-radius:6px;background:linear-gradient(90deg,hsl(0,85%,52%),hsl(40,90%,55%),hsl(80,85%,50%),hsl(120,75%,45%))}
+textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px solid var(--edge);border-radius:8px;padding:8px;font-family:ui-monospace,monospace;font-size:11px}
+.note{color:var(--mut);font-size:11.5px}.sensors span{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;border:1px solid var(--edge);border-radius:5px;padding:1px 6px;margin:2px 2px 0 0}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand"><span id="brandname">HydroManifold</span> <span class="eq">3D Network · z = x·y</span><small>Water-system health — live, schema-built</small></div>
+  <span class="spacer"></span>
+  <button class="btn on" id="rot">⟳ Auto-rotate</button>
+  <button class="btn" id="inject">⚠ Inject fault</button>
+  <button class="btn" id="clear">✓ Clear faults</button>
+  <button class="btn" id="reset">⌖ Reset view</button>
+  <a class="btn" href="index.html">▦ Live monitoring</a>
+</div>
+<div class="layout">
+  <div id="stage"><canvas id="net"></canvas><div class="hint">drag to orbit · scroll to zoom · hover a node for detail</div></div>
+  <div class="side">
+    <div class="card"><h3>Selected node</h3><div id="info"><div class="note">Hover or touch a node in the 3D view.</div></div></div>
+    <div class="card"><h3>System</h3><div id="sys"></div></div>
+    <div class="card"><h3>Health legend (manifold z = x·y)</h3>
+      <div class="grad"></div><div class="legrow note" style="justify-content:space-between"><span>critical 0.0</span><span>warning</span><span>healthy 1.0</span></div>
+      <div class="legrow"><span class="dot" style="background:var(--warn);animation:none"></span> warning — <b style="color:var(--warn)">blinks amber</b></div>
+      <div class="legrow"><span class="dot" style="background:var(--alarm)"></span> alarm — blinks orange</div>
+      <div class="legrow"><span class="dot" style="background:var(--crit)"></span> critical — <b style="color:var(--crit)">blinks red</b>, faster/stronger by severity</div>
+      <div class="note">Node &amp; sensor colors ride the z=x·y gradient; severity drives the blink rate &amp; glow.</div>
+    </div>
+    <div class="card"><h3>Network schema — build it yourself</h3>
+      <div class="note" style="margin-bottom:6px">In a real system the model builds itself as nodes come online. Edit/paste a schema and press Build.</div>
+      <textarea id="schema" spellcheck="false"></textarea>
+      <div class="bar" style="margin-top:8px"><button class="btn" id="build">⛭ Build network</button><button class="btn" id="sample">↺ Sample</button></div>
+      <div class="note" id="schemaMsg" style="margin-top:6px"></div>
+    </div>
+  </div>
+</div>
+
+<script src="theme.js"></script>
+<script src="sensors.js"></script>
+<script src="manifold.js"></script>
+<script src="topology.js"></script>
+<script src="engine.js"></script>
+<script src="network.js"></script>
+<script src="net3d.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  if (window.HM_THEME) window.HM_THEME.applyBrand();
+  var MAN = window.HM_MANIFOLD, E = window.HM_ENGINE, TOP = window.HM_TOPOLOGY;
+
+  // ── live simulator drives real-time sensor health ──
+  var sim = new E.Simulator(TOP.buildTopology('city'), { speed: 220 });
+  for (var i = 0; i < 200; i++) sim.tick(16);
+  setInterval(function () { for (var i = 0; i < 6; i++) sim.tick(40); }, 700);
+
+  var SENSOR_MEASURE = { pressure_transducer: 'pressure', pressure_transient: 'pressure', mag_flow: 'flow', ultrasonic_flow: 'flow', pd_meter: 'flow', radar_level: 'level', submersible_level: 'level', turbidity: 'turbidity', ph: 'ph', chlorine_residual: 'chlorine', temperature_rtd: 'temperature', freeze_probe: 'temperature', motor_current: 'current', pump_vibration: 'vibration', valve_position: 'position', acoustic_leak: 'leak' };
+  var STATUS_Z = { healthy: 0.95, watch: 0.72, warning: 0.5, alarm: 0.3, critical: 0.1 };
+  function stationFor(node) { return sim.stations[(node.station || 0) % sim.stations.length]; }
+  function statusFn(node) { return stationFor(node).health.z; }
+  function sensorFn(node, sid) { var st = stationFor(node), m = SENSOR_MEASURE[sid], r = st && st.readings && st.readings[m]; if (r && r.status && STATUS_Z[r.status] != null) return STATUS_Z[r.status]; return st ? st.health.z : 0.9; }
+
+  function fmt(v) { return Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2); }
+  function onHover(node) {
+    if (!node) return;
+    var st = stationFor(node), z = st.health.z, status = MAN.statusForHealth(z), col = MAN.colorForHealth(z);
+    var rows = '<div class="kv"><span class="k">Node</span><span class="v">' + node.name + '</span></div>' +
+      '<div class="kv"><span class="k">Type</span><span class="v">' + node.type.replace('_', ' ') + '</span></div>' +
+      (node.capacity ? '<div class="kv"><span class="k">Capacity</span><span class="v">' + node.capacity + '</span></div>' : '') +
+      '<div class="kv"><span class="k">Health z=x·y</span><span class="v" style="color:' + col + '">' + z.toFixed(2) + ' · ' + status.label + '</span></div>';
+    var s = (node.sensors || []).map(function (sid) { var sz = sensorFn(node, sid); return '<span style="border-color:' + MAN.colorForHealth(sz) + ';color:' + MAN.colorForHealth(sz) + '">' + sid + '</span>'; }).join('');
+    $('info').innerHTML = rows + '<div class="note" style="margin:6px 0 2px">Sensors (' + (node.sensors || []).length + ')</div><div class="sensors">' + s + '</div>';
+  }
+
+  var net = new HM_NET3D.Net3D($('net'), window.HM_NETWORK.SAMPLE, { statusFn: statusFn, sensorFn: sensorFn, onHover: onHover });
+
+  // system summary refresh
+  setInterval(function () {
+    var agg = sim.aggregate(), col = MAN.colorForHealth(agg.z), st = MAN.statusForHealth(agg.z);
+    var crit = 0, warn = 0; window.HM_NETWORK.SAMPLE.nodes.forEach(function (n) { var t = MAN.statusForHealth(statusFn(n)).tier; if (t === 'critical') crit++; else if (t === 'warning' || t === 'alarm') warn++; });
+    $('sys').innerHTML = '<div class="kv"><span class="k">System health</span><span class="v" style="color:' + col + '">' + agg.z.toFixed(2) + ' · ' + st.label + '</span></div>' +
+      '<div class="kv"><span class="k">Nodes</span><span class="v">' + window.HM_NETWORK.SAMPLE.nodes.length + ' · ' + window.HM_NETWORK.SAMPLE.pipes.length + ' mains</span></div>' +
+      '<div class="kv"><span class="k">Critical</span><span class="v" style="color:var(--crit)">' + crit + '</span></div>' +
+      '<div class="kv"><span class="k">Warnings</span><span class="v" style="color:var(--warn)">' + warn + '</span></div>';
+  }, 600);
+
+  // controls
+  $('rot').addEventListener('click', function () { this.classList.toggle('on'); net.setAutorotate(this.classList.contains('on')); });
+  $('reset').addEventListener('click', function () { net.reset(); });
+  $('inject').addEventListener('click', function () { var nodes = window.HM_NETWORK.SAMPLE.nodes; var n = nodes[Math.floor(Math.random() * nodes.length)]; var st = stationFor(n); var types = ['leak', 'break', 'freeze', 'pump_trip', 'sensor', 'quality']; sim.injectFault(st.id, types[Math.floor(Math.random() * types.length)]); });
+  $('clear').addEventListener('click', function () { sim.clearFaults(); });
+
+  // schema editor
+  $('schema').value = JSON.stringify(window.HM_NETWORK.SAMPLE, null, 1);
+  $('sample').addEventListener('click', function () { $('schema').value = JSON.stringify(window.HM_NETWORK.SAMPLE, null, 1); $('schemaMsg').textContent = ''; });
+  $('build').addEventListener('click', function () {
+    try { var parsed = JSON.parse($('schema').value); if (!parsed.nodes || !parsed.pipes) throw new Error('need { nodes:[], pipes:[] }'); window.HM_NETWORK.SAMPLE = parsed; net.setNetwork(parsed); $('schemaMsg').innerHTML = '<span style="color:var(--ok)">✓ built ' + parsed.nodes.length + ' nodes · ' + parsed.pipes.length + ' pipes — watch them come online</span>'; }
+    catch (e) { $('schemaMsg').innerHTML = '<span style="color:var(--crit)">✗ ' + e.message + '</span>'; }
+  });
+})();
+</script>
+</body>
+</html>

@@ -55,7 +55,7 @@ textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px 
     <div class="card"><h3>Network schema — build it yourself</h3>
       <div class="note" style="margin-bottom:6px">In a real system the model builds itself as nodes come online. Edit/paste a schema and press Build.</div>
       <textarea id="schema" spellcheck="false"></textarea>
-      <div class="bar" style="margin-top:8px"><button class="btn" id="build">⛭ Build network</button><button class="btn" id="sample">↺ Sample</button></div>
+      <div class="bar" style="margin-top:8px"><button class="btn" id="build">⛭ Build network</button><button class="btn" id="cms">🏛 Build from CMS</button><button class="btn" id="sample">↺ Sample</button></div>
       <div class="note" id="schemaMsg" style="margin-top:6px"></div>
     </div>
   </div>
@@ -66,6 +66,9 @@ textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px 
 <script src="manifold.js"></script>
 <script src="topology.js"></script>
 <script src="engine.js"></script>
+<script src="platform/seal.js"></script>
+<script src="platform/registry.js"></script>
+<script src="platform/schemas.js"></script>
 <script src="network.js"></script>
 <script src="net3d.js"></script>
 <script>
@@ -121,6 +124,20 @@ textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px 
   $('build').addEventListener('click', function () {
     try { var parsed = JSON.parse($('schema').value); if (!parsed.nodes || !parsed.pipes) throw new Error('need { nodes:[], pipes:[] }'); window.HM_NETWORK.SAMPLE = parsed; net.setNetwork(parsed); $('schemaMsg').innerHTML = '<span style="color:var(--ok)">✓ built ' + parsed.nodes.length + ' nodes · ' + parsed.pipes.length + ' pipes — watch them come online</span>'; }
     catch (e) { $('schemaMsg').innerHTML = '<span style="color:var(--crit)">✗ ' + e.message + '</span>'; }
+  });
+  // build the 3D model straight from the CMS "Water Supplies" collection (GPS + elevation)
+  $('cms').addEventListener('click', function () {
+    try {
+      var KEY = 'theconduit-hm-seal';
+      var base = { get: function (k) { return localStorage.getItem(k); }, set: function (k, v) { localStorage.setItem(k, v); } };
+      var store = window.HMP_SEAL.encryptedStore(base, KEY);
+      var reg = new window.HMP_REGISTRY.Registry({ ns: 'hmpv3', store: store });
+      window.HMP_SCHEMAS.COLLECTIONS.forEach(function (c) { reg.define(c); });
+      var net2 = window.HM_NETWORK.fromSupplies(reg.list('water_supplies'));
+      if (!net2.nodes.length) throw new Error('no geo-located supplies in the CMS yet — add GPS + elevation in the Operations Center');
+      window.HM_NETWORK.SAMPLE = net2; net.setNetwork(net2); $('schema').value = JSON.stringify(net2, null, 1);
+      $('schemaMsg').innerHTML = '<span style="color:var(--ok)">✓ built ' + net2.nodes.length + ' nodes from CMS water supplies (GPS + elevation)</span>';
+    } catch (e) { $('schemaMsg').innerHTML = '<span style="color:var(--crit)">✗ ' + e.message + '</span>'; }
   });
 })();
 </script>

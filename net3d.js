@@ -22,7 +22,7 @@
     this.statusFn = opts.statusFn || (() => 1);          // node → health z (0..1)
     this.sensorFn = opts.sensorFn || (() => 1);          // (node, sensorId) → z
     this.onHover = opts.onHover || function () {};
-    this.yaw = 0.7; this.pitch = 0.42; this.dist = 250; this.focal = 540; this.target = [0, 10, 4];
+    this.yaw = 0.7; this.pitch = 0.42; this.dist = 250; this.focal = 540; this.target = [0, 7, 0];
     this.autorotate = true; this.t = 0; this.hover = null; this.mouse = null;
     this.dpr = Math.min(root.devicePixelRatio || 1, 2);
     this.setNetwork(net);
@@ -32,6 +32,7 @@
 
   Net3D.prototype.setNetwork = function (net) {
     this.net = net || { nodes: [], pipes: [] };
+    if (root.HM_NETWORK && root.HM_NETWORK.resolvePositions) root.HM_NETWORK.resolvePositions(this.net);   // GPS + elevation → 3D positions
     this.buildStart = (root.performance || Date).now();    // restart the "build itself" animation
     this.nodeById = {}; this.net.nodes.forEach((n, i) => { n._i = i; this.nodeById[n.id] = n; });
   };
@@ -90,34 +91,32 @@
   };
 
   Net3D.prototype._drawNode = function (n, z, grow) {
-    const ctx = this.ctx, look = this._look(z), col = look.base, pos = n.pos, P = this.proj(pos);
-    this._growBase = 0;
-    // glow ring for warning/critical (the "blink")
-    if (look.blink) { ctx.shadowColor = look.blink.col; ctx.shadowBlur = look.blink.glow; ctx.strokeStyle = look.blink.col; ctx.globalAlpha = look.blink.alpha; ctx.lineWidth = 2.4; }
-    let g;
-    if (n.type === 'reservoir') { g = prism(pos, 16, 3, 6, pos[1]); this._poly(g, '#2f8fd6', grow); this._poly({ verts: ring(pos[0], pos[1] + 3, pos[2], 15, 6), faces: [[0, 1, 2, 3, 4, 5]] }, '#3fd0ff', 0.9 * grow); }
-    else if (n.type === 'tank_elevated') { g = prism(pos, 8, 9, 12, pos[1]); this._poly(g, col, grow); this._legs(pos, 8, grow); }
-    else if (n.type === 'tank_ground') { g = prism(pos, 9, 7, 12, 0); this._poly(g, col, grow); }
-    else if (n.type === 'treatment') { g = box(pos, 11, 3, 7, 0); this._poly(g, col, grow); }
-    else if (n.type === 'pump') { g = box(pos, 4.5, 3, 4.5, 0); this._poly(g, col, grow); }
-    else if (n.type === 'well') { g = prism(pos, 2.4, 4, 8, 0); this._poly(g, col, grow); this._line(this.proj([pos[0], 0, pos[2]]), this.proj([pos[0], -10, pos[2]]), col, 1, 0.5); }
+    const ctx = this.ctx, look = this._look(z), col = look.base, pos = n.pos, base = pos[1], P = this.proj(pos);
+    this._growBase = base;                                  // shapes grow upward from their own terrain elevation
+    const al = Math.min(1, grow * 1.5);
+    if (look.blink) { ctx.shadowColor = look.blink.col; ctx.shadowBlur = look.blink.glow; }
+    if (n.type === 'reservoir') { this._poly(prism(pos, 16, 3, 6, base), '#2f8fd6', al, grow); this._poly({ verts: ring(pos[0], base + 3, pos[2], 15, 6), faces: [[0, 1, 2, 3, 4, 5]] }, '#3fd0ff', 0.85 * al, grow); }
+    else if (n.type === 'tank_elevated') { const T = 12; this._poly(prism(pos, 8, 9, 12, base + T), col, al, grow); this._legs(pos, 8, grow, base + T, base); }
+    else if (n.type === 'tank_ground') { this._poly(prism(pos, 9, 7, 12, base), col, al, grow); }
+    else if (n.type === 'treatment') { this._poly(box(pos, 11, 3, 7, base), col, al, grow); }
+    else if (n.type === 'pump') { this._poly(box(pos, 4.5, 3, 4.5, base), col, al, grow); }
+    else if (n.type === 'well') { this._poly(prism(pos, 2.4, 4, 8, base), col, al, grow); this._line(this.proj([pos[0], base, pos[2]]), this.proj([pos[0], base - 9, pos[2]]), col, 1, 0.5 * grow); }
     else { this._billboard(P, 9 * P.s * grow + 3, col, 0.9, look.blink ? look.blink.glow : 5); }   // junction / service
     ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-    // sensors: small markers arranged around the node top, each its own health color + blink
-    const sy = (n.type === 'reservoir' ? pos[1] + 5 : n.type === 'tank_elevated' ? pos[1] + 10 : n.type === 'tank_ground' ? 15 : 8);
-    (n.sensors || []).forEach((sid, k) => {
-      if (grow < 0.6) return; const a = k / Math.max(n.sensors.length, 1) * Math.PI * 2; const sp = this.proj([pos[0] + Math.cos(a) * 6, sy, pos[2] + Math.sin(a) * 6]);
-      const sz = this.sensorFn(n, sid), sl = this._look(sz);
-      this._billboard(sp, (3.2 + (sl.blink ? sl.blink.sev * 2.5 : 0)) * Math.max(sp.s, 0.5) + 1.5, sl.blink ? sl.blink.col : sl.base, sl.blink ? sl.blink.alpha : 0.95, sl.blink ? sl.blink.glow : 4);
-    });
-    // label
-    if (grow > 0.85) { const lp = this.proj([pos[0], (n.type === 'tank_elevated' || n.type === 'reservoir') ? pos[1] + 13 : 18, pos[2]]); ctx.fillStyle = '#cfe0f2'; ctx.font = '11px ui-monospace,monospace'; ctx.textAlign = 'center'; ctx.globalAlpha = clamp((grow - 0.85) / 0.15, 0, 1) * 0.9; ctx.fillText(n.name, lp.x, lp.y); ctx.globalAlpha = 1; }
+    // the BLINK: a pulsing ring in amber/red for warning/critical, intensity & radius by severity
+    if (look.blink) { ctx.strokeStyle = look.blink.col; ctx.globalAlpha = look.blink.alpha; ctx.shadowColor = look.blink.col; ctx.shadowBlur = look.blink.glow; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(P.x, P.y, 12 + look.blink.sev * 7, 0, 7); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1; }
+    // sensors arranged around the node top — each its own health color + blink
+    if (grow >= 0.6) {
+      const sy = base + (n.type === 'tank_elevated' ? 23 : n.type === 'reservoir' ? 6 : 9);
+      (n.sensors || []).forEach((sid, k) => { const a = k / Math.max(n.sensors.length, 1) * Math.PI * 2; const sp = this.proj([pos[0] + Math.cos(a) * 6, sy, pos[2] + Math.sin(a) * 6]); const sl = this._look(this.sensorFn(n, sid)); this._billboard(sp, (3 + (sl.blink ? sl.blink.sev * 2.5 : 0)) * Math.max(sp.s, 0.5) + 1.5, sl.blink ? sl.blink.col : sl.base, sl.blink ? sl.blink.alpha : 0.95, sl.blink ? sl.blink.glow : 4); });
+    }
+    if (grow > 0.85) { const ly = base + (n.type === 'tank_elevated' ? 26 : n.type === 'reservoir' ? 9 : 11); const lp = this.proj([pos[0], ly, pos[2]]); ctx.fillStyle = '#cfe0f2'; ctx.font = '11px ui-monospace,monospace'; ctx.textAlign = 'center'; ctx.globalAlpha = clamp((grow - 0.85) / 0.15, 0, 1) * 0.9; ctx.fillText(n.name, lp.x, lp.y); ctx.globalAlpha = 1; }
   };
-  Net3D.prototype._legs = function (pos, r, grow) { for (let i = 0; i < 4; i++) { const a = (i / 4) * Math.PI * 2 + 0.4; const top = this.proj([pos[0] + Math.cos(a) * r * 0.7, this._growBase + (pos[1] - this._growBase) * grow, pos[2] + Math.sin(a) * r * 0.7]); const bot = this.proj([pos[0] + Math.cos(a) * r * 0.7, 0, pos[2] + Math.sin(a) * r * 0.7]); this._line(top, bot, '#5a7794', 1.4, 0.7); } };
+  Net3D.prototype._legs = function (pos, r, grow, topY, botY) { for (let i = 0; i < 4; i++) { const a = (i / 4) * Math.PI * 2 + 0.4; const x = pos[0] + Math.cos(a) * r * 0.7, z = pos[2] + Math.sin(a) * r * 0.7; const top = this.proj(this._scaleV([x, topY, z], grow)), bot = this.proj(this._scaleV([x, botY, z], grow)); this._line(top, bot, '#5a7794', 1.4, 0.7); } };
   Net3D.prototype._line = function (a, b, col, w, alpha) { const ctx = this.ctx; ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.strokeStyle = col; ctx.lineWidth = w || 1; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.globalAlpha = 1; };
 
   Net3D.prototype._drawPipe = function (a, b, pipe, za, zb) {
-    const ctx = this.ctx, pa = this.proj([a.pos[0], a.pos[1] * 0.5 + 1, a.pos[2]]), pb = this.proj([b.pos[0], b.pos[1] * 0.5 + 1, b.pos[2]]);
+    const ctx = this.ctx, pa = this.proj([a.pos[0], a.pos[1] + 1.5, a.pos[2]]), pb = this.proj([b.pos[0], b.pos[1] + 1.5, b.pos[2]]);
     const z = Math.min(za, zb), col = colorForHealth(z), w = clamp((pipe.diameter || 16) / 6 * Math.min(pa.s, pb.s) * 4, 1.5, 9);
     ctx.strokeStyle = '#1d3349'; ctx.lineWidth = w + 2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
     ctx.strokeStyle = col; ctx.lineWidth = w; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();

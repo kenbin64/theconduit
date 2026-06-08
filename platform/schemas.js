@@ -130,14 +130,17 @@
         { key: 'source', label: 'Source', type: 'select', options: sel('tributary / surface', 'well / pumped-in', 'purchased / imported', 'spring', 'recycled') },
         { key: 'evapLossGalDay', label: 'Evaporation loss (gal/day)', type: 'number' },
         { key: 'gps', label: 'GPS (lat, lon)' },
+        { key: 'elevation', label: 'Elevation (ft)', type: 'number' },
+        { key: 'nodeType', label: '3D node type', type: 'select', options: sel('reservoir', 'tank_elevated', 'tank_ground', 'pump', 'treatment', 'well', 'junction', 'service') },
+        { key: 'connectsTo', label: 'Connects to (names)' },
         { key: 'fireUse', label: 'Firefighting divertable', type: 'select', options: sel('yes', 'no', 'emergency-only') },
         { key: 'status', label: 'Status', type: 'select', options: sel('in-service', 'standby', 'offline', 'quarantined') }
       ],
       seed: [
-        { name: 'NE Pressure-Zone Reservoir', classification: 'potable', potable: 'yes', chlorine: 0.9, mineralsPpm: 320, storage: 'elevated (high) tank', capacityGal: 2000000, composition: 'welded steel', source: 'well / pumped-in', evapLossGalDay: 0, gps: '41.2230, -111.9738', fireUse: 'yes', status: 'in-service' },
-        { name: 'Pineview Source Reservoir', classification: 'raw / untreated', potable: 'no', chlorine: 0, mineralsPpm: 140, storage: 'reservoir', capacityGal: 110000000000, composition: 'earthen / lined', source: 'tributary / surface', evapLossGalDay: 850000, gps: '41.2585, -111.8430', fireUse: 'emergency-only', status: 'in-service' },
-        { name: 'South Bench Ground Tank', classification: 'potable', potable: 'yes', chlorine: 0.7, mineralsPpm: 290, storage: 'ground tank', capacityGal: 750000, composition: 'prestressed concrete', source: 'purchased / imported', evapLossGalDay: 0, gps: '41.1902, -111.9510', fireUse: 'yes', status: 'in-service' },
-        { name: 'Secondary Irrigation Pond', classification: 'irrigation', potable: 'no', chlorine: 0, mineralsPpm: 210, storage: 'reservoir', capacityGal: 5200000, composition: 'earthen / lined', source: 'tributary / surface', evapLossGalDay: 42000, gps: '41.1755, -112.0240', fireUse: 'emergency-only', status: 'in-service' }
+        { name: 'NE Pressure-Zone Reservoir', classification: 'potable', potable: 'yes', chlorine: 0.9, mineralsPpm: 320, storage: 'elevated (high) tank', capacityGal: 2000000, composition: 'welded steel', source: 'well / pumped-in', evapLossGalDay: 0, gps: '41.2230, -111.9738', elevation: 5060, nodeType: 'tank_elevated', connectsTo: 'South Bench Ground Tank', fireUse: 'yes', status: 'in-service' },
+        { name: 'Pineview Source Reservoir', classification: 'raw / untreated', potable: 'no', chlorine: 0, mineralsPpm: 140, storage: 'reservoir', capacityGal: 110000000000, composition: 'earthen / lined', source: 'tributary / surface', evapLossGalDay: 850000, gps: '41.2585, -111.8430', elevation: 5180, nodeType: 'reservoir', connectsTo: 'NE Pressure-Zone Reservoir', fireUse: 'emergency-only', status: 'in-service' },
+        { name: 'South Bench Ground Tank', classification: 'potable', potable: 'yes', chlorine: 0.7, mineralsPpm: 290, storage: 'ground tank', capacityGal: 750000, composition: 'prestressed concrete', source: 'purchased / imported', evapLossGalDay: 0, gps: '41.1902, -111.9510', elevation: 4880, nodeType: 'tank_ground', connectsTo: 'Secondary Irrigation Pond', fireUse: 'yes', status: 'in-service' },
+        { name: 'Secondary Irrigation Pond', classification: 'irrigation', potable: 'no', chlorine: 0, mineralsPpm: 210, storage: 'reservoir', capacityGal: 5200000, composition: 'earthen / lined', source: 'tributary / surface', evapLossGalDay: 42000, gps: '41.1755, -112.0240', elevation: 4560, nodeType: 'reservoir', connectsTo: '', fireUse: 'emergency-only', status: 'in-service' }
       ],
       rbac: { view: ['*'], edit: ['administrator', 'engineer', 'operator'] }
     },

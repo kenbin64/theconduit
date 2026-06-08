@@ -25,6 +25,7 @@ set -euo pipefail
 # ── configuration ──────────────────────────────────────────────────────────
 REMOTE="butterfly@172.81.62.217"
 VPS_IP="172.81.62.217"
+SSH_PORT="2222"                 # non-default SSH port
 REMOTE_DIR="/home/butterfly/theconduit"
 SERVICE="theconduit"
 APP_PORT="8787"                 # Node app port (localhost only; Caddy proxies to it)
@@ -38,8 +39,8 @@ say() { printf '\033[36m▶ %s\033[0m\n' "$*"; }
 die() { printf '\033[31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
 
 case "${1:-deploy}" in
-  --restart) ssh "$REMOTE" "sudo systemctl restart $SERVICE && systemctl --no-pager status $SERVICE | head -5"; exit 0 ;;
-  --logs)    ssh "$REMOTE" "journalctl -u $SERVICE -n 80 -f"; exit 0 ;;
+  --restart) ssh -p "$SSH_PORT" "$REMOTE" "sudo systemctl restart $SERVICE && systemctl --no-pager status $SERVICE | head -5"; exit 0 ;;
+  --logs)    ssh -p "$SSH_PORT" "$REMOTE" "journalctl -u $SERVICE -n 80 -f"; exit 0 ;;
 esac
 SKIP_TESTS=0; [ "${1:-}" = "--no-tests" ] && SKIP_TESTS=1
 command -v ssh >/dev/null || die "ssh not found on this machine"
@@ -54,15 +55,15 @@ fi
 
 # ── 2. ship the site (tar-over-ssh) ─────────────────────────────────────────
 say "Syncing files to $REMOTE:$REMOTE_DIR"
-ssh "$REMOTE" "mkdir -p '$REMOTE_DIR'"
+ssh -p "$SSH_PORT" "$REMOTE" "mkdir -p '$REMOTE_DIR'"
 tar --exclude='.git' --exclude='node_modules' --exclude='*.log' \
     --exclude='.DS_Store' --exclude='deploy.sh' -czf - . \
-  | ssh "$REMOTE" "tar -xzf - -C '$REMOTE_DIR'"
+  | ssh -p "$SSH_PORT" "$REMOTE" "tar -xzf - -C '$REMOTE_DIR'"
 printf '\033[32m✓ files synced\033[0m\n'
 
 # ── 3. app systemd service + Caddy install + firewall ───────────────────────
 say "Configuring app service + Caddy (HTTPS)"
-ssh "$REMOTE" "bash -s" <<REMOTE_SCRIPT
+ssh -p "$SSH_PORT" "$REMOTE" "bash -s" <<REMOTE_SCRIPT
 set -e
 command -v $NODE_BIN >/dev/null || { echo '✗ Node.js not installed on the VPS — install it first'; exit 1; }
 NODE_PATH="\$(command -v $NODE_BIN)"
@@ -123,7 +124,7 @@ else
 "
   PUBLIC_URL="https://$VPS_IP/  (self-signed — browser will warn until you set a DOMAIN)"
 fi
-printf '%s' "$CADDYFILE" | ssh "$REMOTE" "sudo tee /etc/caddy/Caddyfile >/dev/null && sudo systemctl enable caddy >/dev/null 2>&1 || true; sudo systemctl reload caddy 2>/dev/null || sudo systemctl restart caddy"
+printf '%s' "$CADDYFILE" | ssh -p "$SSH_PORT" "$REMOTE" "sudo tee /etc/caddy/Caddyfile >/dev/null && sudo systemctl enable caddy >/dev/null 2>&1 || true; sudo systemctl reload caddy 2>/dev/null || sudo systemctl restart caddy"
 
 echo
 printf '\033[32m✓ deployed with HTTPS\033[0m\n'

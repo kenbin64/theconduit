@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HydroManifold — Water System Telemetry &amp; Health Monitoring (z = x·y)</title>
+  <meta name="description"
+    content="A functional water-system monitoring simulation: real sensors, real alarm bands, EKG-style live monitors, manifold z=x·y health color spectrum, predictive ETAs, and one framework that scales from a single home to a city.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand"><span id="brandname">HydroManifold</span> <span class="eq">z = x·y</span>
+      <small>Water-system telemetry &amp; health monitoring</small>
+    </div>
+    <a class="poweredby" href="platform.html" title="The manifold paradigm — documentation &amp; proofs">⨳ Powered by Butterflyfx Manifold</a>
+    <select id="tier" title="Scale"></select>
+    <select id="weather" title="Weather scenario"></select>
+    <button id="play" title="Pause / resume">⏸ Pause</button>
+    <div class="speedwrap">speed
+      <input type="range" id="speed" min="20" max="600" step="20" value="160">
+      <span id="speedlbl" class="mono">160×</span>
+    </div>
+    <button id="inject" title="Inject a random fault into a station">⚠ Inject fault</button>
+    <button id="clear" title="Clear all injected faults">✓ Clear faults</button>
+    <button id="sound" title="Optional audible alerts (off by default)">🔕 Alerts</button>
+    <select id="theme" title="Theme — make it yours"></select>
+    <input type="color" id="accent" title="Accent color" style="width:32px;height:30px;padding:2px;background:var(--panel2);border:1px solid var(--edge);border-radius:7px;cursor:pointer">
+    <a class="navlink" href="docs.html" target="_blank" rel="noopener">📘 Docs &amp; business case</a>
+    <a class="navlink" href="engineering.html" target="_blank" rel="noopener">🔬 Engineering &amp; science</a>
+    <a class="navlink" href="platform.html" target="_blank" rel="noopener">🛠 Operations Center</a>
+    <button id="wall" title="Wall display (full-screen control-room view)">🖥 Wall display</button>
+    <button id="wall-exit" style="display:none">✕ Exit wall</button>
+    <div class="spacer"></div>
+    <div class="clock mono" id="clock">D1 06:00</div>
+  </div>
+
+  <div class="demobar" id="demobar"><span class="simblink">● SIMULATED MONITORING</span> Demonstration &amp; simulation only — not connected to any real water system. Real operations require a licensed copy on your own infrastructure.</div>
+
+  <div class="scalebar">
+    <div class="scale-card"><div class="v mono" id="sc-stations">—</div><div class="l">Stations</div></div>
+    <div class="scale-card"><div class="v mono" id="sc-sensors">—</div><div class="l">Sensors</div></div>
+    <div class="scale-card"><div class="v mono" id="sc-pop">—</div><div class="l">People served</div></div>
+    <div class="scale-card"><div class="v mono" id="sc-demand">—</div><div class="l">Demand (MGD)</div></div>
+    <div class="sys-health">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">System health</div>
+      <div class="bar"><div class="fill" id="sys-fill"></div></div>
+      <div class="z mono" id="sys-z">—</div>
+      <div id="sys-status" class="mono" style="min-width:90px;font-weight:700">—</div>
+    </div>
+  </div>
+
+  <section class="ops" id="ops">
+    <div class="opscard"><h4>🌦 Weather &amp; service impact</h4><div class="opbody" id="op-weather"></div></div>
+    <div class="opscard"><h4>📊 Usage &amp; 24h demand forecast</h4><div class="opbody" id="op-usage"></div><canvas class="opforecast" id="op-forecast"></canvas></div>
+    <div class="opscard"><h4>💵 Economics — today vs budget</h4><div class="opbody" id="op-econ"></div></div>
+    <div class="opscard"><h4>📈 Water market (spot &amp; futures)</h4><div class="opbody" id="op-market"></div></div>
+    <div class="opscard"><h4>🚚 Supply mix, suppliers &amp; logistics</h4><div class="opbody" id="op-supply"></div></div>
+    <div class="opscard"><h4>🧠 AI analysis — anomalies &amp; predictive</h4><div class="opbody" id="op-ai"></div></div>
+    <div class="opscard wide"><h4>🛟 Outages, failsafe &amp; catastrophic recovery</h4><div class="opbody" id="op-recovery"></div></div>
+  </section>
+
+  <div class="critbanner" id="critbanner"></div>
+
+  <div class="filterbar" id="filterbar">
+    <span class="flt-lbl">Show</span>
+    <button class="fbtn on" data-status="all">All</button>
+    <button class="fbtn" data-status="healthy">Healthy</button>
+    <button class="fbtn" data-status="warning">Warnings</button>
+    <button class="fbtn" data-status="alarm">Alarms</button>
+    <button class="fbtn" data-status="critical">Critical</button>
+    <button class="fbtn" data-status="failures">Failures</button>
+    <span class="flt-lbl" style="margin-left:14px">Category</span>
+    <select id="flt-cat"></select>
+    <span class="warnack" id="warnack"></span>
+  </div>
+
+  <div class="wrap">
+    <div class="stations" id="stations"></div>
+
+    <aside class="side">
+      <h3><span class="alarm-blink" id="alarm-blink"></span>Live alarm log</h3>
+      <div class="alarms" id="alarms"></div>
+
+      <h3>Alert report</h3>
+      <div class="alertreport" id="alertreport"></div>
+
+      <div class="legend">
+        <span><i class="dot s-healthy"></i>healthy</span>
+        <span><i class="dot s-watch"></i>watch</span>
+        <span><i class="dot s-warning"></i>warning</span>
+        <span><i class="dot s-alarm"></i>alarm</span>
+        <span><i class="dot s-critical"></i>critical</span>
+      </div>
+
+      <h3>Sensor catalog (real instruments)</h3>
+      <div class="catalog" id="catalog"></div>
+
+      <div class="explain">
+        <b>How health is computed.</b> Each station folds its sensors onto the manifold
+        primitive <code>z = x·y</code>: <code>x</code> = supply adequacy (pressure · flow · reserves),
+        <code>y</code> = integrity &amp; quality (no leak/break/freeze · water in spec · sensors trusted).
+        Multiplying is honest — a perfect-pressure station with contaminated water, or a great-quality main
+        with an active leak, is <i>not</i> healthy, so one failing axis collapses the score. <code>z</code>
+        then drives the color spectrum (red→amber→green), the warning lights, and the alarms. The same
+        framework runs every scale in the dropdown; only the station and sensor counts change.
+      </div>
+    </aside>
+  </div>
+
+  <div class="detail-overlay" id="detail">
+    <div class="detail-card">
+      <div class="detail-head">
+        <div><div class="detail-title" id="detail-title"></div><div class="note" id="detail-sub"></div></div>
+        <div class="detail-z mono" id="detail-z"></div>
+        <button class="detail-x" id="detail-x" title="Close">✕</button>
+      </div>
+      <div class="detail-body" id="detail-body"></div>
+    </div>
+  </div>
+
+  <script src="theme.js"></script>
+  <script src="license.js"></script>
+  <script src="deploy.js"></script>
+  <script src="platform/people.js"></script>
+  <script src="sensors.js"></script>
+  <script src="manifold.js"></script>
+  <script src="topology.js"></script>
+  <script src="engine.js"></script>
+  <script src="weather.js"></script>
+  <script src="forecast.js"></script>
+  <script src="analysis.js"></script>
+  <script src="economics.js"></script>
+  <script src="ops.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

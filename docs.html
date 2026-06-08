@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>HydroManifold — Documentation, Feasibility &amp; Market Analysis</title>
+  <style>
+    :root{--bg:#070b12;--panel:#0e1622;--panel2:#121d2c;--edge:#1f2e42;--txt:#dbe7f5;--muted:#8195ad;--accent:#3fd0ff;--gold:#ffcf4a;--ok:#27e07a;--warn:#ffc233;--bad:#ff6a3d}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.62;font-size:15px}
+    .wrap{display:grid;grid-template-columns:250px 1fr;max-width:1280px;margin:0 auto}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr}.toc{display:none}}
+    .toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--edge);padding:18px 14px;background:#0a111b}
+    .toc .b{font-weight:800;color:var(--gold)}.toc .b .eq{color:var(--accent);font-family:ui-monospace,monospace}
+    .toc a{display:block;color:var(--muted);text-decoration:none;font-size:13px;padding:4px 0;border-left:2px solid transparent;padding-left:8px}
+    .toc a:hover{color:var(--txt)}.toc .s{margin-top:10px;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#5d7falt;color:#5d7f9c}
+    main{padding:30px 36px 80px;max-width:900px}
+    h1{font-size:30px;margin:0 0 4px}h2{font-size:23px;margin:42px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--edge)}
+    h3{font-size:17px;margin:24px 0 6px;color:var(--gold)}
+    .eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:3px;font-size:12px}
+    .lead{font-size:17px;color:#c2d4e8}
+    code{font-family:ui-monospace,Consolas,monospace;color:var(--accent);background:#0a131e;padding:1px 5px;border-radius:5px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);border:1px solid var(--edge);border-radius:12px;padding:16px 18px;margin:14px 0}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+    table{width:100%;border-collapse:collapse;font-size:13.5px;margin:12px 0}
+    th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--edge);vertical-align:top}
+    th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+    .pill{display:inline-block;padding:1px 9px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid currentColor}
+    .ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.gold{color:var(--gold)}.acc{color:var(--accent)}
+    .mermaid{background:#0a111b;border:1px solid var(--edge);border-radius:12px;padding:14px;margin:14px 0;overflow:auto}
+    .flag{border-left:3px solid var(--warn);background:rgba(255,194,51,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+    .win{border-left:3px solid var(--ok);background:rgba(39,224,122,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+    ul{margin:8px 0}li{margin:3px 0}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0}
+    .kpi{background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:12px}
+    .kpi .v{font-size:22px;font-weight:800;font-family:ui-monospace,monospace;color:var(--gold)}.kpi .l{font-size:11px;color:var(--muted)}
+    .foot{margin-top:50px;padding-top:18px;border-top:1px solid var(--edge);color:var(--muted);font-size:12.5px}
+    a.link{color:var(--accent)}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <nav class="toc">
+      <div class="b">HydroManifold <span class="eq">z=x·y</span></div>
+      <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Documentation &amp; business case</div>
+      <div class="s">Product</div>
+      <a href="#summary">Executive summary</a>
+      <a href="#solution">The solution</a>
+      <a href="#features">Features (out-of-box + extending)</a>
+      <a href="#adaptability">Adaptability — any scale/mission</a>
+      <a href="#paradigm">The paradigm</a>
+      <div class="s">Technical</div>
+      <a href="#architecture">Architecture &amp; diagrams</a>
+      <a href="#failsafe">Disciplined AI / failsafe</a>
+      <a href="#proof">Self-proving (tests)</a>
+      <a href="#security">Signed &amp; encrypted manifold</a>
+      <a href="engineering.html">Engineering &amp; science reference ↗</a>
+      <a href="#feasibility">Feasibility report</a>
+      <div class="s">Business</div>
+      <a href="#market">Northern Utah market</a>
+      <a href="#adoption">Adoption &amp; reception</a>
+      <a href="#competition">Competition</a>
+      <a href="#barriers">Barriers to entry</a>
+      <a href="#risks">Risks &amp; benefits</a>
+      <a href="#gtm">Go-to-market &amp; model</a>
+      <div class="s">Live</div>
+      <a href="platform.html">▦ Platform</a>
+      <a href="index.html">▦ Live simulation</a>
+    </nav>
+
+    <main>
+      <div class="eyebrow">Confidential · for review</div>
+      <h1>HydroManifold</h1>
+      <p class="lead">A water-system telemetry, compliance and management platform built on one geometric primitive
+        (<code>z = x·y</code>) and a disciplined, verifiable AI. It monitors every drop from a single home to a city,
+        and it manages the utility around that water — compliance, assets, finance, risk, security — as living,
+        editable data rather than hard-coded software.</p>
+
+      <!-- ───────────── EXECUTIVE SUMMARY ───────────── -->
+      <h2 id="summary">Executive summary</h2>
+      <p>HydroManifold is two things in one product:</p>
+      <ul>
+        <li><b>A real-time monitoring &amp; intelligence system</b> — real sensors, real alarm thresholds, EKG-style
+          live monitors, a <code>z = x·y</code> health-color manifold, predictive ETAs, weather, economics, water
+          markets, and catastrophic-recovery/failsafe logic.</li>
+        <li><b>A CMS-driven utility management platform</b> — 25+ governed domains (regulations, assets, procurement,
+          incidents/threats, billing, taxes, conservation, emergency, security/classification, data governance, legal,
+          IP, finance, software/SBOM, hardware) with role-based access, a tamper-evident audit trail, live compliance,
+          reports, and AI-assisted entry that is guarded against hallucination.</li>
+      </ul>
+      <div class="kpis">
+        <div class="kpi"><div class="v">1 → 1.1M</div><div class="l">stations, one framework</div></div>
+        <div class="kpi"><div class="v">25+</div><div class="l">managed domains (extensible)</div></div>
+        <div class="kpi"><div class="v">90 / 90</div><div class="l">automated tests passing</div></div>
+        <div class="kpi"><div class="v">0</div><div class="l">code deploys to change a rule</div></div>
+      </div>
+      <div class="win"><b>Why now, here:</b> Utah is the second-driest state, the fastest-growing, and is living through
+        the Great Salt Lake crisis. The state has made <b>metering every drop a legal requirement</b> (secondary-water
+        metering mandate). A monitoring platform whose whole thesis is "watch every drop" lands directly on policy,
+        funding, and public will — in our backyard.</div>
+
+      <!-- ───────────── SOLUTION ───────────── -->
+      <h2 id="solution">The solution</h2>
+      <p>Most water software is siloed (SCADA here, billing there, compliance in spreadsheets) and priced for large
+        utilities. The ~90% of systems that are small or midrange are underserved. HydroManifold collapses the silos
+        onto one model:</p>
+      <ul>
+        <li><b>One primitive.</b> Every station's health is <code>z = x·y</code> — supply adequacy × integrity/quality.
+          Multiplying is honest: perfect pressure with contaminated water is <i>not</i> healthy. One number, one color,
+          every scale.</li>
+        <li><b>One framework, every scale.</b> A home is one service connection with 3 sensors; a city is ~62,000
+          stations and ~250,000 sensors of the same kinds. Stored as a small <i>seed</i>, "bloomed" into detail only
+          where you look.</li>
+        <li><b>One management spine.</b> Everything a utility must track is a schema-driven collection — add a domain
+          by adding a schema, not by writing code.</li>
+        <li><b>Disciplined AI.</b> AI assists, but deterministic manifold logic verifies; nothing the AI emits is
+          trusted until proven.</li>
+      </ul>
+
+      <!-- ───────────── FEATURES ───────────── -->
+      <h2 id="features">Features — out of the box &amp; extending</h2>
+      <div class="grid2">
+        <div class="card"><h3>Out of the box</h3>
+          <ul>
+            <li>Real-time telemetry + <b>EKG monitors</b> per station</li>
+            <li><code>z=x·y</code> health spectrum, warning lights, alarms</li>
+            <li>Predictive ETAs: reserve depletion, leak, freeze, residual loss</li>
+            <li>Weather, usage/forecast, economics, water spot+futures market, suppliers, logistics</li>
+            <li>Leak/break localization, outage propagation, load balancing, recovery/failsafe</li>
+            <li>CMS with 25+ domains, RBAC, tamper-evident audit, CSV/FOIA export</li>
+            <li>Live compliance engine, reports, statistics, wall-display mode</li>
+            <li>Failsafe AI integrity (truth tables, drift state machine), human override</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Extending</h3>
+          <ul>
+            <li><b>New regulation / policy / domain = one schema</b>, no code, no deploy</li>
+            <li>New jurisdiction (federal/state/county/city/industry) = data entries</li>
+            <li>New sensor type = one catalog entry (cost, MTBF, accuracy, self-diag)</li>
+            <li>New scale tier = one topology entry</li>
+            <li>Real LLM behind AI-assist (the failsafe guard is model-agnostic)</li>
+            <li>Integrations: Modbus/DNP3 SCADA, AMI meter APIs, GIS</li>
+            <li>Roles &amp; permissions are configurable (least-privilege)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ───────────── ADAPTABILITY ───────────── -->
+      <h2 id="adaptability">Adaptability — one platform, any scale or mission</h2>
+      <p class="lead">Because behavior lives in the CMS, the <b>same software</b> is a single-home monitor or a national
+        water authority. The organization — or the individual — <b>writes the parameters</b> (thresholds, regulations,
+        domains, roles, station topology, protocols) and the system <b>ingests</b> them. Meeting a new need never means
+        rewriting source code. It is deliberately <b>not</b> one-size-fits-all; it fits each customer because each
+        customer sets its own shape.</p>
+      <table>
+        <thead><tr><th>Deployment</th><th>What they configure in the CMS</th><th>Same code?</th></tr></thead>
+        <tbody>
+          <tr><td>Single home</td><td>3 sensors, simple alarm bands, freeze watch</td><td class="ok">✓</td></tr>
+          <tr><td>Apartment / HOA · secondary water</td><td>meter accounts, watering restrictions, booster + tank</td><td class="ok">✓</td></tr>
+          <tr><td>Business · hospital · data center</td><td>redundancy, water quality, cooling make-up, criticality</td><td class="ok">✓</td></tr>
+          <tr><td>Cruise ship · offshore platform</td><td>desal/bunker sources, tankage, potable vs grey, no-loss limits</td><td class="ok">✓</td></tr>
+          <tr><td>Military installation · deployment</td><td>classification, priority diversion, OPSEC, mutual-aid, contamination response</td><td class="ok">✓</td></tr>
+          <tr><td>City · township</td><td>full distribution, DMAs, billing, conservation stages, taxes</td><td class="ok">✓</td></tr>
+          <tr><td>State / federal planning</td><td>multi-system rollup, regulation registry, drought policy, reporting</td><td class="ok">✓</td></tr>
+        </tbody>
+      </table>
+      <div class="win"><b>One sentence:</b> the organization changes the <i>parameters</i>, never the <i>program</i>.
+        The live simulation's scale selector — home → apartment → high-rise → hospital → arena → data center →
+        power/nuclear plant → farm → <b>cruise ship</b> → <b>military installation</b> → township → reservoir/dam →
+        city → region — is itself just data; each entry is a few lines of configuration, not a new build.</div>
+
+      <!-- ───────────── PARADIGM ───────────── -->
+      <h2 id="paradigm">The paradigm: documentation <i>is</i> the implementation</h2>
+      <p class="lead">The novel idea: the rules, policies, and regulations a utility must follow are not buried in
+        source code — they are <b>data in a living CMS</b>, and the running system reads them directly. Change a rule
+        and the behavior changes immediately. The documentation and the implementation are the same artifact.</p>
+
+      <h3>Config-as-behavior</h3>
+      <p>A regulation in the CMS — e.g. "free chlorine ≥ 0.2 mg/L (40 CFR 141.72)" — is a record with a parameter, an
+        operator, and a threshold. The compliance engine consumes those records against the live monitoring snapshot
+        and produces compliant/violation verdicts <b>in real time</b>. A compliance officer who edits that threshold,
+        or adds a brand-new city ordinance, changes what the system enforces — with <b>no code change and no
+        redeploy</b>. The manifold "digests" the new rule on the next evaluation tick.</p>
+
+      <h3>Self-proving</h3>
+      <p>The system substantiates its own claims rather than asking to be trusted:</p>
+      <ul>
+        <li><b>Runnable tests</b> — 90 automated checks (simulation engine, platform spine, every domain) prove the
+          behaviors this document describes; "no-teleport," "freeze recovers," "hallucination blocked," "least
+          privilege denies" are not assertions, they are passing tests.</li>
+        <li><b>Tamper-evident audit</b> — every change is hash-chained; editing the past breaks the chain and is
+          detected. The log proves what happened.</li>
+        <li><b>Deterministic verification</b> — compliance verdicts and AI outputs are checked against manifold truth
+          tables, so a claim of "compliant" cannot survive a turbidity over the legal limit.</li>
+      </ul>
+
+      <h3>Auto-correcting</h3>
+      <p>The platform guards itself: the failsafe rejects AI drafts that violate an invariant (a hallucinated
+        "compliant" is refused, not stored); the drift state machine quarantines the AI into deterministic-only mode
+        when it disagrees with ground truth; the audit chain flags tampering; compliance flags drift from the rules.
+        The documentation (the rules) and the enforcement (the engine) stay in lock-step automatically.</p>
+      <div class="win">This is the differentiator a water board can understand in one sentence: <b>"You change the
+        rules in plain language; the system obeys instantly and proves it obeyed — and the AI can't lie about it."</b></div>
+
+      <!-- ───────────── ARCHITECTURE ───────────── -->
+      <h2 id="architecture">Architecture &amp; diagrams</h2>
+
+      <h3>System architecture</h3>
+      <pre class="mermaid">
+flowchart LR
+  S[Field sensors / SCADA / AMI] --> M[Manifold telemetry<br/>z = x·y]
+  M --> E[Simulation / health engine<br/>physics · faults · alarms · predictive]
+  E --> O[Ops intelligence<br/>weather · forecast · economics · recovery]
+  E --> P[Management platform]
+  subgraph P[Management platform]
+    CMS[CMS registry<br/>25+ domains] --> CE[Compliance engine]
+    RBAC[RBAC · zero-trust] --- CMS
+    AUD[Tamper-evident audit] --- CMS
+    AI[AI assist] --> VF[Failsafe verifier]
+  end
+  O --> UI[Browser · wall monitors]
+  P --> UI
+  CE --> AUD
+  VF --> AUD
+      </pre>
+
+      <h3>Scaling: seed → bloom</h3>
+      <pre class="mermaid">
+flowchart TD
+  T[Tier seed<br/>composition + duties] --> R[Representative stations<br/>bloomed on view]
+  T --> N[True totals<br/>stations · sensors · population]
+  R --> V[What you render]
+  N --> V2[What you report]
+  V & V2 --> H[Honest at any scale<br/>home → city → region]
+      </pre>
+
+      <h3>CMS-active: a rule change with no code</h3>
+      <pre class="mermaid">
+sequenceDiagram
+  participant U as Compliance Officer
+  participant C as CMS (data)
+  participant M as Manifold / engine
+  participant A as Audit
+  U->>C: Edit / add regulation (plain language)
+  C->>M: New rule available next tick
+  M->>M: Evaluate vs live monitoring
+  M-->>U: Live compliant / violation verdict
+  M->>A: Log evaluation (hash-chained)
+  Note over U,A: No source change · no redeploy
+      </pre>
+
+      <h3>Disciplined AI: propose → verify → act</h3>
+      <pre class="mermaid">
+flowchart LR
+  IN[Input / request] --> AI[AI proposes]
+  AI --> V{Deterministic verify<br/>truth tables · logic gates<br/>regex · decision tree}
+  V -- agrees --> ACT[Accept · log]
+  V -- disagrees --> REJ[Reject = hallucination blocked]
+  REJ --> DM[Drift state machine]
+  DM -- sustained --> FS[FAILSAFE: deterministic-only<br/>+ human review]
+  FS --> HO[Human override<br/>strong credentials]
+      </pre>
+
+      <h3>Deployment &amp; redundancy</h3>
+      <pre class="mermaid">
+flowchart TD
+  B[Browser / wall monitors] -- HTTPS + auth --> NG[nginx · TLS · access control]
+  NG --> APP[HydroManifold app]
+  APP --> DB[(Manifold store + records)]
+  DB --> RAID[RAID-6]
+  DB --> OFF[Offsite archive]
+  APP --> AUD[(WORM audit chain)]
+  Note1[Read-only telemetry replica feeds wall displays]
+      </pre>
+
+      <!-- ───────────── FAILSAFE ───────────── -->
+      <h2 id="failsafe">The disciplined-AI selling point</h2>
+      <p>Water boards, regulators, and the public are rightly wary of black-box AI making decisions about drinking
+        water. That skepticism kills most "AI for utilities" pitches. HydroManifold turns it into the sale:</p>
+      <ul>
+        <li><b>AI never has the last word.</b> Every AI output is cross-checked against deterministic manifold logic
+          (truth tables, logic gates, regex, a decision tree). A verdict that contradicts physics or law is rejected.</li>
+        <li><b>Drift is caught and quarantined.</b> A state machine (TRUSTED → WATCH → FAILSAFE → HUMAN REVIEW) detects
+          when the AI stops agreeing with ground truth and switches to deterministic-only mode.</li>
+        <li><b>Humans hold the keys.</b> Override requires strong credentials and is itself audit-logged.</li>
+        <li><b>It's explainable.</b> Every decision traces to a rule you can read, not a weight you can't.</li>
+      </ul>
+      <div class="win">Positioning: <b>"AI you can put in front of a regulator."</b> When competitors' AI can
+        hallucinate a compliance pass, a provably-disciplined AI is a moat, not a liability.</div>
+
+      <!-- ───────────── PROOF ───────────── -->
+      <h2 id="proof">Self-proving — the tests are part of the product</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="v">27</div><div class="l">simulation engine tests</div></div>
+        <div class="kpi"><div class="v">19</div><div class="l">platform spine tests</div></div>
+        <div class="kpi"><div class="v">44</div><div class="l">domain + RBAC checks</div></div>
+        <div class="kpi"><div class="v">100%</div><div class="l">passing</div></div>
+      </div>
+      <p>Representative guarantees, each backed by a runnable test: a peg/parcel of water never teleports (no-teleport
+        invariant), a tripped pump truly reads zero, a freeze is bounded to ice and recovers when cleared, a forced
+        "compliant" over a turbidity exceedance is blocked, least-privilege denies a billing view to an operator, and
+        the audit chain detects a single altered byte.</p>
+
+      <!-- ───────────── SECURITY / SEAL ───────────── -->
+      <h2 id="security">Signed, authenticated &amp; encrypted manifold</h2>
+      <p class="lead">Every parameter entered into the CMS is <b>sealed</b> before it takes effect — so the system's
+        configuration is unforgeable as a whole, not merely per record.</p>
+      <ul>
+        <li><b>Signed &amp; authenticated.</b> A keyed signature binds each parameter's content to the authenticated
+          role that entered it. An unsigned or altered parameter fails verification and is flagged.</li>
+        <li><b>Reshapes the manifold.</b> Each parameter is folded into a running <b>manifold shape</b> — a keyed digest
+          of the <i>entire ordered parameter history</i>. Change any one parameter and the shape, plus every signature
+          after it, diverges. Without the key and the full history the shape <b>cannot be predicted or forged</b>.</li>
+        <li><b>Encrypted at rest.</b> The parameter store is ciphertext.</li>
+      </ul>
+      <p>The live <b>manifold seal</b> — shown in the platform header and on the dashboard — is a single fingerprint of
+        every rule, policy and threshold currently in force. A regulator or auditor can confirm the configuration is
+        intact at a glance, and any tampering anywhere in the parameter set changes the fingerprint.</p>
+      <div class="flag"><b>Implementation note:</b> the reference build uses a dependency-free keyed digest and cipher to
+        demonstrate the design end-to-end. Production swaps these for <b>HMAC-SHA-256 / Ed25519 signatures</b> and
+        <b>AES-256-GCM</b> via WebCrypto, with keys in an HSM/KMS. The architecture — sign → shape-fold → encrypt — is
+        identical at any strength.</div>
+
+      <!-- ───────────── FEASIBILITY ───────────── -->
+      <h2 id="feasibility">Feasibility report</h2>
+      <h3>Technical — proven</h3>
+      <p>The platform is built, tested, and deployed. It is browser-based with a small server footprint, integrates via
+        standard industrial protocols (Modbus/DNP3, AMI meter APIs), and has demonstrated scaling from a single home to
+        a region. Risk here is low; the hard part (the model + the guarded AI) exists and runs.</p>
+      <h3>Operational — lean, with one watch-item</h3>
+      <p>A small team can run it as SaaS. The main operational cost in this market is <b>support</b> for non-technical
+        utility staff. The CMS-active design is the mitigation: customers change their own rules/policies without
+        tickets, and the documentation-as-implementation model keeps "how it works" and "what it does" identical.</p>
+      <h3>Financial — low capex, recurring revenue</h3>
+      <p>Low capital to build/host (web app). Revenue is per-tier SaaS subscription (recurring, high gross margin). A
+        single midrange client funds continued development; a handful reach sustainability.</p>
+      <div class="flag"><b>To validate before fundraising:</b> exact count of addressable Northern-Utah systems by
+        size, current vendor/spend per segment, and the precise scope/timeline of the secondary-metering mandate for
+        target suppliers. The landscape below is real; the precise numbers should be confirmed with the Utah Division
+        of Water Resources / Division of Drinking Water and target districts.</div>
+
+      <!-- ───────────── MARKET ───────────── -->
+      <h2 id="market">Market analysis — Northern Utah</h2>
+      <h3>The tailwinds are unusually strong</h3>
+      <ul>
+        <li><b>Driest, fastest-growing state.</b> Utah is the 2nd-driest state and among the fastest-growing — demand
+          rising into a shrinking supply. Monitoring and conservation are existential, not optional.</li>
+        <li><b>The Great Salt Lake crisis.</b> Record-low lake levels turned water into Utah's top environmental and
+          political issue, unlocking legislation, agency focus, and funding for measurement and conservation.</li>
+        <li><b>"Monitor every drop" is now law.</b> Utah mandated <b>secondary (pressurized irrigation) water
+          metering</b> — historically unmeasured water must now be metered by larger suppliers, with state cost-share.
+          Northern Utah (Weber Basin, Davis, Weber, Cache, Box Elder) is full of secondary systems. Our product's core
+          thesis maps onto a statutory requirement.</li>
+        <li><b>Silicon Slopes.</b> A deep Utah tech ecosystem (talent, capital, credibility) lowers the cost of
+          building a startup here and lends a local software company legitimacy.</li>
+        <li><b>Funding exists.</b> State water appropriations, the federal infrastructure law (DWSRF, BIL water funds),
+          and GSL-related programs create budgets utilities can point software spend at.</li>
+      </ul>
+
+      <h3 id="adoption">Adoption &amp; reception</h3>
+      <p>Reception is likely <b>favorable</b> in this specific market for three reasons:</p>
+      <ul>
+        <li><b>Cultural fit.</b> "Monitor every drop" is the regional ethos and the legal mandate; a manifold-based
+          system whose premise is exactly that is an easy story to tell a Utah board.</li>
+        <li><b>Underserved segment.</b> Small/midrange districts and secondary-water companies can't afford
+          enterprise SCADA suites and run on spreadsheets — they are the early adopters with the sharpest pain.</li>
+        <li><b>The disciplined-AI angle disarms the usual objection.</b> Where "AI" raises a red flag for a
+          conservative utility board, a <i>verified, explainable, human-overridable</i> AI is reassuring — turning the
+          typical pushback into a differentiator.</li>
+      </ul>
+      <div class="flag"><b>Adoption realism:</b> public utilities buy slowly (boards, budgets, RFPs, references for
+        critical infrastructure). Expect 6–18 month sales cycles. Land a friendly first district as a design partner,
+        win a reference, then expand district-to-district where word travels fast.</div>
+
+      <h3 id="competition">Competitive landscape</h3>
+      <table>
+        <thead><tr><th>Category</th><th>Incumbents</th><th>Our wedge</th></tr></thead>
+        <tbody>
+          <tr><td>SCADA / telemetry</td><td>Trimble Telog, Mission Comms</td><td>Integrated with management + compliance, not just data logging</td></tr>
+          <tr><td>Compliance / quality</td><td>Aquatic Informatics, 120Water</td><td>Live, rule-as-data compliance tied to telemetry</td></tr>
+          <tr><td>AMI / metering</td><td>Badger, Sensus/Xylem, Itron</td><td>We consume their meter data; not competing on hardware</td></tr>
+          <tr><td>CMMS / asset</td><td>Cityworks, Brightly</td><td>One platform, SMB-priced, not enterprise modules</td></tr>
+          <tr><td>Billing / CIS</td><td>Tyler, Caselle (UT)</td><td>Adjacent; integrate rather than replace initially</td></tr>
+        </tbody>
+      </table>
+      <p>The gap incumbents leave: an <b>integrated, affordable, compliance-automating platform for small/midrange
+        systems</b>, with a disciplined AI. No incumbent owns that intersection.</p>
+
+      <h3 id="barriers">Barriers to entry</h3>
+      <div class="grid2">
+        <div class="card"><h3 class="acc">Working against us</h3>
+          <ul>
+            <li>Long public-sector procurement / RFP cycles</li>
+            <li>Trust &amp; references required for critical infrastructure</li>
+            <li>Cybersecurity expectations (AWIA, EPA cyber guidance; possibly StateRAMP)</li>
+            <li>Integration with legacy SCADA/AMI/GIS</li>
+            <li>Liability for a water-critical system; insurance</li>
+            <li>Incumbent relationships and switching inertia</li>
+            <li>Single-founder bandwidth / support load</li>
+          </ul>
+        </div>
+        <div class="card"><h3 class="ok">In our favor (moats)</h3>
+          <ul>
+            <li>Regulatory tailwind + local urgency (GSL, metering mandate)</li>
+            <li>Defensible IP: manifold health model + failsafe AI (patentable / trade-secret)</li>
+            <li>Disciplined-AI positioning competitors can't easily copy credibly</li>
+            <li>CMS-active design = low support cost = SMB-viable economics</li>
+            <li>Local presence &amp; relationships in Northern Utah</li>
+            <li>Same platform extends beyond water (any sensored, regulated utility)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 id="risks">Risks &amp; benefits</h3>
+      <div class="grid2">
+        <div class="card"><h3 class="bad">Risks</h3>
+          <ul>
+            <li>Long sales cycles delay revenue</li>
+            <li>Critical-infrastructure liability &amp; breach reputational risk</li>
+            <li>Regulatory/funding shifts change priorities</li>
+            <li>Incumbents bundle a competing feature</li>
+            <li>Support burden if CMS self-service under-delivers</li>
+            <li>Data ownership / privacy / records-law obligations</li>
+          </ul>
+        </div>
+        <div class="card"><h3 class="ok">Benefits</h3>
+          <ul>
+            <li>Recurring, high-margin SaaS; passive-income friendly via licensing</li>
+            <li>Mandate-driven, underserved, local market</li>
+            <li>One platform, many domains → expansion revenue</li>
+            <li>Defensible, explainable AI as a durable differentiator</li>
+            <li>Low capex; a single client funds growth</li>
+            <li>Mission with public goodwill (saving the lake, saving water)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ───────────── GTM ───────────── -->
+      <h2 id="gtm">Go-to-market &amp; business model</h2>
+      <ol>
+        <li><b>Design partner (now).</b> One friendly Northern-Utah small/midrange district or secondary-water company.
+          Discounted ($3k–12k/yr) for a logo, a reference call, and a written case study; renewal steps up to standard.</li>
+        <li><b>Reference-led expansion.</b> Utah water operators are a tight community; a working reference + the GSL
+          urgency drives district-to-district adoption.</li>
+        <li><b>Tiered SaaS.</b> Very small $4–15k/yr · small $15–45k/yr · midrange $45–120k/yr · one-time onboarding
+          $5–40k. <span class="muted">(Estimates to validate against incumbent quotes.)</span></li>
+        <li><b>Founder economics for passive income.</b> License the IP to the operating entity for a <b>15–25% running
+          royalty on recurring revenue + a minimum annual guarantee</b>, rather than running support yourself.
+          Protect with clean IP assignment, a trademark, and capped liability — confirm with an IP attorney.</li>
+      </ol>
+      <div class="flag"><b>Not legal, financial, or valuation advice.</b> Regulatory facts (GSL crisis, secondary-water
+        metering mandate, driest-state status, Silicon Slopes) are real and verifiable; specific dollar figures, market
+        sizes, and the precise mandate scope/timeline are estimates to confirm with Utah agencies and target customers
+        before fundraising or contracting.</div>
+
+      <div class="foot">
+        HydroManifold · documentation-as-implementation · © 2026 Kenneth W. Bingham.
+        This document is served by the same platform it describes (<a class="link" href="platform.html">platform</a> ·
+        <a class="link" href="index.html">live simulation</a>) — the system and its documentation are one artifact.
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    try { mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { background: '#0a111b', primaryColor: '#12203a', primaryBorderColor: '#3fd0ff', lineColor: '#7f9bc0', fontFamily: 'ui-monospace, monospace' } }); } catch (e) {}
+  </script>
+</body>
+
+</html>

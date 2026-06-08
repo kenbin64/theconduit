@@ -1,0 +1,25 @@
+# ── OS / editor cruft ──
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.vscode/
+.idea/
+
+# ── Node tooling (if added later) ──
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── logs / temp / caches ──
+*.log
+*.tmp
+.cache/
+
+# ── local overrides & secrets (never commit deployment keys / env) ──
+*.local
+.env
+.env.*
+secrets.*

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>HydroManifold — Engineering, Security &amp; Scientific Foundations</title>
+  <style>
+    :root{--bg:#070b12;--panel:#0e1622;--panel2:#121d2c;--edge:#1f2e42;--txt:#dbe7f5;--muted:#8195ad;--accent:#3fd0ff;--gold:#ffcf4a;--ok:#27e07a;--warn:#ffc233;--bad:#ff6a3d}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.62;font-size:15px}
+    .wrap{display:grid;grid-template-columns:260px 1fr;max-width:1280px;margin:0 auto}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr}.toc{display:none}}
+    .toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--edge);padding:18px 14px;background:#0a111b}
+    .toc .b{font-weight:800;color:var(--gold)}.toc .b .eq{color:var(--accent);font-family:ui-monospace,monospace}
+    .toc a{display:block;color:var(--muted);text-decoration:none;font-size:13px;padding:4px 0;border-left:2px solid transparent;padding-left:8px}
+    .toc a:hover{color:var(--txt)}.toc .s{margin-top:10px;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#5d7f9c}
+    main{padding:30px 36px 80px;max-width:920px}
+    h1{font-size:30px;margin:0 0 4px}h2{font-size:23px;margin:42px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--edge)}
+    h3{font-size:17px;margin:24px 0 6px;color:var(--gold)}
+    .eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:3px;font-size:12px}
+    .lead{font-size:17px;color:#c2d4e8}
+    code{font-family:ui-monospace,Consolas,monospace;color:var(--accent);background:#0a131e;padding:1px 5px;border-radius:5px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);border:1px solid var(--edge);border-radius:12px;padding:16px 18px;margin:14px 0}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+    table{width:100%;border-collapse:collapse;font-size:13.5px;margin:12px 0}
+    th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--edge);vertical-align:top}
+    th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+    .pill{display:inline-block;padding:1px 9px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid currentColor}
+    .ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.gold{color:var(--gold)}.acc{color:var(--accent)}
+    .mermaid{background:#0a111b;border:1px solid var(--edge);border-radius:12px;padding:14px;margin:14px 0;overflow:auto}
+    .flag{border-left:3px solid var(--warn);background:rgba(255,194,51,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+    .win{border-left:3px solid var(--ok);background:rgba(39,224,122,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+    .stop{border-left:3px solid var(--bad);background:rgba(255,106,61,.08);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+    ul{margin:8px 0}li{margin:3px 0}ol{margin:8px 0}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0}
+    .kpi{background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:12px}
+    .kpi .v{font-size:22px;font-weight:800;font-family:ui-monospace,monospace;color:var(--gold)}.kpi .l{font-size:11px;color:var(--muted)}
+    .ref{font-size:12.5px;color:var(--muted)}.ref li{margin:5px 0}
+    .foot{margin-top:50px;padding-top:18px;border-top:1px solid var(--edge);color:var(--muted);font-size:12.5px}
+    a.link{color:var(--accent)}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <nav class="toc">
+      <div class="b">HydroManifold <span class="eq">z=x·y</span></div>
+      <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Engineering &amp; scientific reference</div>
+      <div class="s">Assurance</div>
+      <a href="#assurance">Assurance &amp; disclaimer</a>
+      <a href="#nothing-experimental">Nothing experimental</a>
+      <div class="s">Science</div>
+      <a href="#foundations">Scientific foundations &amp; proofs</a>
+      <a href="#established-vs-choice">Established vs. design choice</a>
+      <a href="#standards">Standards conformance</a>
+      <div class="s">Security</div>
+      <a href="#security">Security features</a>
+      <a href="#monitor-monitors">Monitoring the monitors</a>
+      <div class="s">Operations</div>
+      <a href="#parameters">Parameters &amp; turning on monitors</a>
+      <a href="#accuracy">Configuration &amp; accuracy audits</a>
+      <div class="s">Plant</div>
+      <a href="#schematic">System schematic &amp; equipment</a>
+      <a href="#placement">Sensor placement assessment</a>
+      <div class="s">Change control</div>
+      <a href="#predeploy">Pre-deploy assessment</a>
+      <a href="#testing">Simulation, regression &amp; stress</a>
+      <a href="#rollback">Rollback procedures</a>
+      <div class="s">Legal</div>
+      <a href="#legal">Disclaimers, liability, insurance</a>
+      <a href="#references">References</a>
+      <div class="s">Live</div>
+      <a href="docs.html">📘 Docs &amp; business case</a>
+      <a href="platform.html">▦ Platform</a>
+      <a href="index.html">▦ Live simulation</a>
+    </nav>
+
+    <main>
+      <div class="eyebrow">Confidential · engineering reference</div>
+      <h1>Engineering, Security &amp; Scientific Foundations</h1>
+      <p class="lead">This document states, transparently and with citations, exactly what HydroManifold is built on.
+        Every mechanism below is a <b>standard, accepted industry or academic practice</b> for operating water-monitoring
+        and equipment-management software in real time and for forward planning. <b>Nothing here is experimental, novel,
+        or theoretical.</b> Where the product makes an engineering choice, that choice is named as a choice and justified
+        by established science — never presented as a law of nature.</p>
+
+      <!-- ───────────── ASSURANCE ───────────── -->
+      <h2 id="assurance">Assurance statement</h2>
+      <div class="win">
+        <b>HydroManifold contains no experimental or unproven theories.</b> It is assembled entirely from established,
+        peer-reviewed and industry-standard methods — the same methods already in widespread industrial and academic
+        use for water telemetry, reliability engineering, statistical monitoring, condition-based maintenance,
+        time-series forecasting, cryptographic integrity, and access control. Its real-time monitoring follows accepted
+        water-utility practice, and its forward-looking analysis is <b>best-effort forecasting derived from data — not
+        hunches, not guesses, and not unvalidated models.</b>
+      </div>
+      <p>Concretely, the product commits to the following:</p>
+      <ul>
+        <li><b>Data, not hunches.</b> Every alarm, score and forecast traces to a measured input and a documented,
+          reproducible rule. There is no "it should work" anywhere in the logic — see
+          <a class="link" href="#foundations">Scientific foundations</a> and
+          <a class="link" href="#testing">self-proving tests</a>.</li>
+        <li><b>Established methods only.</b> No mechanism depends on a result that is not already standard practice or
+          settled science. The mapping is itemized in <a class="link" href="#standards">Standards conformance</a>.</li>
+        <li><b>Transparent and reproducible.</b> The math is open, the rules are inspectable, the tests are runnable, and
+          the same inputs always produce the same outputs (deterministic verification).</li>
+        <li><b>Buyer verification required.</b> HydroManifold is a decision-support and management tool. Operators must
+          <b>independently verify, test and approve</b> it against their own instruments, regulations and acceptance
+          criteria before relying on it for any safety-critical decision. See <a class="link" href="#legal">Legal</a>.</li>
+      </ul>
+
+      <h3 id="nothing-experimental">What "nothing experimental" means here — and an honest scope note</h3>
+      <p>"Manifold" in this product is <b>not</b> a new invention. It is the ordinary mathematical object used throughout
+        modern data science and machine learning. HydroManifold does not attempt to prove new technology; it
+        <b>exploits proven methods</b>. To keep that promise honest, two scope facts are stated plainly:</p>
+      <div class="flag"><b>Demonstration build.</b> This reference deployment runs on <i>representative / simulated</i>
+        telemetry and uses dependency-free, demonstration-grade cryptography so the whole design can be inspected and run
+        from a single folder. A production installation binds to certified field instruments and replaces the demo
+        digest/cipher with FIPS-validated cryptography (see <a class="link" href="#security">Security</a>). The
+        <i>methods</i> are production-grade and standard; the demo's <i>data and key handling</i> are clearly labelled as
+        demonstration scaffolding.</div>
+      <div class="flag"><b>No performance claim.</b> Representing data on a manifold is a clarity and modelling choice —
+        it organizes supply, integrity and health into one inspectable picture. It is <b>not</b> claimed to make the
+        software faster than conventional code. We do not overstate it.</div>
+
+      <!-- ───────────── FOUNDATIONS ───────────── -->
+      <h2 id="foundations">Scientific foundations &amp; proofs</h2>
+      <p>Each building block below is named with the established body of work it comes from. Citations are listed in
+        <a class="link" href="#references">References</a>.</p>
+
+      <h3>1 · The manifold &amp; latent representation</h3>
+      <p>The <b>manifold hypothesis</b> — that real-world high-dimensional data concentrates near a lower-dimensional
+        manifold — is a foundational, tested premise of modern machine learning [Fefferman–Mitter–Narayanan 2016;
+        Cayton 2005; Bengio–Courville–Vincent 2013]. It is the same premise under embeddings, latent factors and
+        dimensionality reduction (PCA [Pearson 1901; Hotelling 1933]; matrix factorization in industrial recommender
+        systems [Koren–Bell–Volinsky 2009]). HydroManifold uses this exactly as the field does: it places each station's
+        operating state on a low-dimensional manifold (supply × integrity) so that "health" is a position in that space.
+        This is established, widely-adopted science — not a proposal.</p>
+
+      <h3>2 · Why health is multiplicative: <code>z = x·y</code></h3>
+      <p>The choice to multiply supply-adequacy (<code>x</code>) by integrity/quality (<code>y</code>) is grounded in
+        <b>series-system reliability theory</b>, where the reliability of a system whose components must all function is
+        the <i>product</i> of the component reliabilities, <code>R = R₁·R₂·…·Rₙ</code> [O'Connor–Kleyner; MIL-HDBK-217F;
+        IEC&nbsp;61508]. A series product has the correct safety property: if any one factor collapses to zero, the whole
+        collapses to zero. That is precisely the behaviour water operators need — <b>perfect pressure with contaminated
+        water is not healthy</b>. The multiplicative form is therefore the standard, conservative modelling choice, not a
+        novelty.</p>
+      <figure style="margin:16px 0">
+        <img src="health-manifold.svg" alt="System health manifold: supply adequacy (x) by integrity/quality (y), colored by health z = x·y, with tier-boundary contours." style="width:100%;max-width:620px;border:1px solid var(--edge);border-radius:12px;display:block">
+        <figcaption class="ref" style="margin-top:6px">The health manifold: every operating state is a point in
+          supply&nbsp;(x)&nbsp;×&nbsp;integrity&nbsp;(y); color is health <code>z = x·y</code>. Dashed lines are the
+          tier boundaries (Healthy / Watch / Warning / Alarm / Critical). The same spectrum colors every station live.</figcaption>
+      </figure>
+
+      <h3>3 · Real-time anomaly &amp; alarm detection</h3>
+      <p>Live deviation detection uses <b>statistical process control</b> — Shewhart control limits, the Western Electric
+        run rules, and EWMA/CUSUM for drift [Shewhart 1931; Page 1954; ISO 7870]. These are the textbook, century-old,
+        universally-adopted methods for distinguishing real excursions from noise. Fixed regulatory alarm thresholds
+        (turbidity, chlorine residual, pH, pressure) are taken directly from <b>SDWA / National Primary Drinking Water
+        Regulations</b> and AWWA practice and are editable per jurisdiction in the CMS.</p>
+
+      <h3>4 · Forward planning (forecasting)</h3>
+      <p>Demand and reserve forecasts use established time-series methods — exponential smoothing (Holt–Winters) and
+        Box–Jenkins ARIMA [Box–Jenkins 1970] — the standard toolkit for utility demand forecasting. Forecasts are
+        presented as <b>best-effort projections with their basis shown</b>, never as certainties. This is the
+        "data, not hunches" guarantee made concrete.</p>
+
+      <h3>5 · Equipment health &amp; predictive maintenance</h3>
+      <p>Asset degradation and maintenance scheduling follow recognized <b>condition-monitoring standards</b> — ISO 13374
+        (data processing &amp; presentation), ISO 17359 (general guidelines) and ISO 20816 (mechanical vibration severity)
+        — the accepted basis for predictive/condition-based maintenance in industry.</p>
+
+      <h3>6 · Hydraulics &amp; sensor siting</h3>
+      <p>Network behaviour and sensor placement reference the <b>EPANET</b> hydraulic &amp; water-quality modelling
+        engine (US EPA) — the de-facto standard the commercial tools are built on — and the peer-reviewed
+        sensor-placement literature, including the <b>Battle of the Water Sensor Networks</b> benchmark and EPA's
+        TEVA-SPOT methodology [Rossman/EPANET; Ostfeld et al. 2008]. See <a class="link" href="#placement">Sensor
+        placement assessment</a>.</p>
+
+      <h3>7 · Integrity, cryptography &amp; access control</h3>
+      <p>Tamper-evidence uses <b>hash chains / Merkle structures</b> [Merkle 1979; RFC 6962 Certificate Transparency] —
+        the same construction under Git and certificate transparency logs. Production signing and encryption use
+        <b>NIST/FIPS-validated</b> primitives: SHA-2 [FIPS 180-4], HMAC [FIPS 198-1], EdDSA/ECDSA [FIPS 186-5], AES
+        [FIPS 197]. Access control implements the <b>NIST RBAC model</b> [ANSI INCITS 359-2004], <b>least privilege</b>
+        [Saltzer–Schroeder 1975] and <b>Zero Trust</b> [NIST SP 800-207]. Industrial-control security follows
+        <b>ISA/IEC 62443</b> and <b>AWWA G430</b> / EPA AWIA risk-and-resilience expectations.</p>
+
+      <h3>8 · Disciplined AI (deterministic guardrails)</h3>
+      <p>The failsafe layer applies <b>runtime verification</b> [Leucker–Schallhart 2009]: an independent, deterministic
+        oracle (truth tables, logic gates, range checks, a drift state machine) validates every AI-proposed value before
+        it is accepted — the same principle as a type checker or a test oracle. AI <i>proposes</i>; established
+        deterministic logic <i>disposes</i>. No machine-learning output is trusted without passing fixed checks.</p>
+
+      <!-- ───────────── ESTABLISHED VS CHOICE ───────────── -->
+      <h2 id="established-vs-choice">Established science vs. engineering choice — stated honestly</h2>
+      <p>Transparency requires drawing the line clearly:</p>
+      <div class="grid2">
+        <div class="card"><b class="ok">Established science / standards we exploit</b>
+          <ul>
+            <li>Manifold hypothesis &amp; latent representation</li>
+            <li>Series-system reliability (multiplicative)</li>
+            <li>Statistical process control (anomaly/alarm)</li>
+            <li>ARIMA / exponential smoothing (forecasts)</li>
+            <li>ISO condition-monitoring standards</li>
+            <li>EPANET hydraulics; sensor-placement research</li>
+            <li>Merkle/hash-chain integrity; FIPS crypto</li>
+            <li>NIST RBAC, least privilege, Zero Trust</li>
+            <li>Runtime verification of computed outputs</li>
+          </ul>
+        </div>
+        <div class="card"><b class="gold">Engineering choices (justified, not "new science")</b>
+          <ul>
+            <li>Using <code>z = x·y</code> as the single health scalar — <i>justified by series reliability</i></li>
+            <li>"Seed → bloom" storage — ordinary <i>lazy / on-demand materialization</i> from computer science</li>
+            <li>One generic schema-driven renderer for every domain — a software-design choice</li>
+            <li>Specific default alarm bands — taken from SDWA/AWWA, editable per jurisdiction</li>
+            <li>Demo digest/cipher — a labelled placeholder for FIPS crypto</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stop"><b>We do not claim:</b> any new mathematics; any unproven model; any computational speed-up from
+        the manifold; or fitness for safety-critical use without the operator's own validation. Those would be
+        overstatements, and this product makes none of them.</div>
+
+      <!-- ───────────── STANDARDS ───────────── -->
+      <h2 id="standards">Standards &amp; industry-practice conformance</h2>
+      <p>Every major capability maps to a recognized standard or accepted practice for water-monitoring and
+        equipment-management software:</p>
+      <table>
+        <tr><th>Capability</th><th>Established basis / standard</th></tr>
+        <tr><td>Drinking-water quality limits &amp; reporting</td><td>EPA Safe Drinking Water Act; National Primary Drinking Water Regulations (40 CFR 141); Lead &amp; Copper Rule; Revised Total Coliform Rule</td></tr>
+        <tr><td>Distribution &amp; asset practice</td><td>AWWA standards &amp; manuals (e.g., G430 security, M-series)</td></tr>
+        <tr><td>Telemetry / SCADA integration</td><td>DNP3 (IEEE 1815), Modbus; historian practice</td></tr>
+        <tr><td>Hydraulic &amp; water-quality modelling</td><td>EPANET (US EPA)</td></tr>
+        <tr><td>Sensor placement</td><td>BWSN benchmark; EPA TEVA-SPOT methodology</td></tr>
+        <tr><td>Anomaly / alarm detection</td><td>Statistical process control (ISO 7870; Shewhart/EWMA/CUSUM)</td></tr>
+        <tr><td>Demand / reserve forecasting</td><td>ARIMA &amp; exponential smoothing (Box–Jenkins; Holt–Winters)</td></tr>
+        <tr><td>Equipment condition monitoring</td><td>ISO 13374, ISO 17359, ISO 20816</td></tr>
+        <tr><td>Reliability scoring</td><td>Series-system reliability (IEC 61508; MIL-HDBK-217F)</td></tr>
+        <tr><td>Audit integrity</td><td>Hash chains / Merkle (RFC 6962); FIPS 180-4 SHA-2</td></tr>
+        <tr><td>Signing &amp; encryption (production)</td><td>FIPS 198-1 HMAC, FIPS 186-5 EdDSA/ECDSA, FIPS 197 AES</td></tr>
+        <tr><td>Access control</td><td>NIST/ANSI RBAC (INCITS 359-2004); NIST SP 800-207 Zero Trust; least privilege</td></tr>
+        <tr><td>ICS / OT security</td><td>ISA/IEC 62443; EPA AWIA risk &amp; resilience; AWWA G430</td></tr>
+        <tr><td>AI output validation</td><td>Runtime verification; deterministic test-oracle pattern</td></tr>
+      </table>
+
+      <!-- ───────────── SECURITY ───────────── -->
+      <h2 id="security">Security features (comprehensive)</h2>
+      <p>Security is layered; each layer is an accepted control:</p>
+      <ul>
+        <li><b>Signed, authenticated parameters.</b> Every parameter ingested is signed with a keyed digest binding its
+          content to the authenticated role that entered it. An unsigned or altered parameter fails verification.
+          <i>Production: HMAC-SHA-256 or Ed25519.</i></li>
+        <li><b>Encrypted manifold (shape-folding).</b> Each parameter is folded into a running <b>manifold shape</b> — a
+          keyed digest of the entire ordered parameter history. Change any parameter and the shape, and every signature
+          after it, diverges; without the key and full history it cannot be predicted or forged. The live shape is a
+          single fingerprint of the whole configuration. <i>This is the hash-chain construction [Merkle; RFC 6962].</i></li>
+        <li><b>Encrypted at rest.</b> The parameter store is ciphertext. <i>Production: AES-256-GCM via WebCrypto with
+          HSM/KMS keys.</i></li>
+        <li><b>Tamper-evident audit trail.</b> Every create/update/delete and role change is appended to a hash-chained,
+          event-sourced log; breaking the chain is detectable.</li>
+        <li><b>RBAC, least privilege, default-deny.</b> Eight roles, explicit grants only; anything not granted is denied.</li>
+        <li><b>Zero-trust classified gate.</b> Classified collections require an explicit capability regardless of role.</li>
+        <li><b>Disciplined-AI failsafe.</b> Deterministic validation of every AI-proposed value before acceptance, with a
+          drift state machine (TRUSTED → WATCH → FAILSAFE → HUMAN_REVIEW) and human override under strong credentials.</li>
+        <li><b>Transport &amp; access hardening (deployment).</b> TLS, authenticated access, network segmentation per
+          ISA/IEC 62443.</li>
+      </ul>
+      <div class="win">Verify it yourself: in the platform, open any collection and click <b>🔐 Verify seal</b>. The
+        platform recomputes every record's signature against the manifold shape and reports whether all records verify or
+        how many fail — making tampering visible at a glance.</div>
+
+      <h3>Modern encryption + the manifold security advantage</h3>
+      <p>Production HydroManifold uses <b>current, standards-grade cryptography</b> — there is nothing home-grown in a
+        real deployment:</p>
+      <ul>
+        <li><b>AES-256-GCM</b> authenticated encryption for data at rest (FIPS 197), via the platform WebCrypto API or an
+          HSM/KMS that holds the keys.</li>
+        <li><b>TLS 1.3</b> for data in transit.</li>
+        <li><b>Ed25519 / ECDSA digital signatures</b> (FIPS 186-5) and <b>HMAC-SHA-256</b> (FIPS 198-1) for parameter
+          authentication.</li>
+        <li><b>Keys in an HSM/KMS</b>, rotated, never embedded in code; access is RBAC- and Zero-Trust-gated.</li>
+      </ul>
+      <p>On top of that standard cryptography, the <b>manifold adds a second, structural layer of security</b> that
+        per-record encryption alone does not provide:</p>
+      <div class="win"><b>The manifold security advantage.</b> Encryption protects each value; the
+        <b>shape-folded manifold</b> protects the <i>relationships between every value</i>. Because each parameter is
+        folded into a keyed running shape derived from the <b>entire ordered history</b>, the configuration has a single
+        global fingerprint that is:
+        <ul>
+          <li><b>Whole-set tamper-evident</b> — altering, inserting, deleting or reordering <i>any</i> parameter
+            anywhere changes the global shape and every signature after it, even if an attacker could decrypt and
+            re-encrypt an individual record.</li>
+          <li><b>Unforgeable without the key and full history</b> — the next shape cannot be predicted, so a valid-looking
+            forged state cannot be fabricated; this is the "impossible to predict" property.</li>
+          <li><b>One-glance verifiable</b> — a regulator or operator confirms the integrity of the entire configuration
+            from one fingerprint, not by trusting thousands of separate records.</li>
+        </ul>
+        This is the same proven hash-chain construction used by Git and certificate-transparency logs [Merkle; RFC 6962]
+        — applied across the whole parameter manifold rather than a single ledger. It is an added benefit, not a
+        replacement for encryption: <b>modern encryption protects the data; the manifold proves the data is whole.</b>
+      </div>
+
+      <h3 id="monitor-monitors">Monitoring the monitors</h3>
+      <p>The system watches its own watchers, following condition-monitoring and SPC practice:</p>
+      <ul>
+        <li><b>Sensor health &amp; trust.</b> Each sensor carries a trust/quality state; stuck, flat-lined, out-of-range
+          or drifting sensors are flagged and de-weighted rather than silently believed.</li>
+        <li><b>Cross-checks.</b> Independent signals are reconciled (e.g., flow vs. pressure vs. reservoir level); a
+          reading that contradicts the others is quarantined for review.</li>
+        <li><b>Heartbeat &amp; staleness.</b> Missing or stale telemetry raises an explicit fault — silence is treated as
+          a fault, never as "all clear".</li>
+        <li><b>AI-integrity dashboard.</b> The failsafe view reports the AI's drift state and recent deterministic
+          verdicts so operators can see when automated judgement is being distrusted.</li>
+      </ul>
+
+      <!-- ───────────── PARAMETERS ───────────── -->
+      <h2 id="parameters">Operations: parameters &amp; turning on monitors</h2>
+      <p>HydroManifold is configured, not reprogrammed. You change the parameters; the program is unchanged.</p>
+      <ol>
+        <li><b>Pick the collection</b> (regulations, equipment, accounts, conservation, etc.) in the left nav. Each is a
+          schema-driven module — fields, types and validation come from its schema.</li>
+        <li><b>Add a parameter / record.</b> Use <b>+ New</b>. RBAC checks your role can edit; the entry is validated,
+          <b>signed</b>, folded into the manifold shape, written to the encrypted store, and recorded in the audit log.</li>
+        <li><b>Turn on a monitor.</b> Defining a station/asset with its sensor set (and thresholds drawn from the
+          regulations collection) enables its live monitor — EKG-style trace, alarm bands and the <code>z = x·y</code>
+          health color. Thresholds are parameters, so enabling/retuning a monitor is data entry, not a code change.</li>
+        <li><b>Export / report.</b> Any collection exports to CSV; reports and FOIA extracts are generated from the same
+          governed data.</li>
+      </ol>
+
+      <h3 id="accuracy">Configuration &amp; accuracy audits (built in)</h3>
+      <ul>
+        <li><b>Configuration audit.</b> The manifold shape is a one-glance integrity fingerprint of the entire
+          configuration; the audit trail records who changed which parameter, when, and from what prior shape.</li>
+        <li><b>Accuracy / calibration audit.</b> Sensors carry calibration metadata; readings are range- and
+          rate-of-change-checked (SPC) and cross-validated against independent signals. Out-of-tolerance or
+          past-due-calibration instruments are flagged.</li>
+        <li><b>Reproducibility check.</b> The deterministic logic means a given configuration + inputs always yields the
+          same outputs, so an auditor can reproduce any result.</li>
+      </ul>
+
+      <!-- ───────────── SCHEMATIC ───────────── -->
+      <h2 id="schematic">System schematic, plans &amp; equipment</h2>
+      <p>A representative distribution system and its instrumentation. Real deployments load the operator's own network
+        (e.g., from an EPANET model) — this is the standard layout the monitoring maps onto.</p>
+      <div class="mermaid">
+flowchart LR
+  SRC[("Source<br/>well / surface intake")] -->|raw| TRT["Treatment plant<br/>coagulation · filtration · disinfection"]
+  TRT -->|finished| PS["Pump station"]
+  PS --> STO[("Storage<br/>tank / reservoir")]
+  STO --> TM["Transmission main"]
+  TM --> DZ1["Distribution zone A<br/>(DMA)"]
+  TM --> DZ2["Distribution zone B<br/>(DMA)"]
+  DZ1 --> SVC1["Service connections / meters"]
+  DZ2 --> SVC2["Service connections / meters"]
+  classDef s fill:#0e1622,stroke:#3fd0ff,color:#dbe7f5;
+  classDef t fill:#0e1622,stroke:#ffcf4a,color:#dbe7f5;
+  class SRC,STO s; class TRT,PS,TM,DZ1,DZ2 t;
+      </div>
+      <h3>Standard instrumentation by location</h3>
+      <table>
+        <tr><th>Location</th><th>Typical sensors / equipment</th><th>What it protects</th></tr>
+        <tr><td>Source</td><td>Level, raw turbidity, conductivity, flow</td><td>Supply availability, source quality</td></tr>
+        <tr><td>Treatment</td><td>Turbidity (filter effluent), chlorine residual, pH, ORP, dosing pumps</td><td>Treatment efficacy (SDWA limits)</td></tr>
+        <tr><td>Pump station</td><td>Flow, suction/discharge pressure, motor current, vibration (ISO 20816), runtime</td><td>Delivery &amp; pump health</td></tr>
+        <tr><td>Storage</td><td>Level, residual chlorine, temperature</td><td>Reserve &amp; residual decay</td></tr>
+        <tr><td>Transmission / DMA</td><td>Flow (district metering), pressure, leak/acoustic</td><td>Loss, pressure mgmt, leak detection</td></tr>
+        <tr><td>Service</td><td>Metered consumption, backflow</td><td>Billing, demand, cross-connection</td></tr>
+      </table>
+
+      <!-- ───────────── PLACEMENT ───────────── -->
+      <h2 id="placement">Sensor placement — assessment &amp; optimality</h2>
+      <p>Whether instrumentation is in the right place is a recognized optimization problem, not a matter of opinion.
+        HydroManifold assesses placement against the established objectives from the water-security literature
+        [Ostfeld et al. 2008; EPA TEVA-SPOT] and reports whether current placement is adequate or should be moved:</p>
+      <table>
+        <tr><th>Objective</th><th>Question it answers</th></tr>
+        <tr><td>Detection likelihood / coverage</td><td>What fraction of the network can an event be detected anywhere downstream of a sensor?</td></tr>
+        <tr><td>Time-to-detection</td><td>How quickly is a contamination/leak event seen after it starts?</td></tr>
+        <tr><td>Expected population/area affected before detection</td><td>How much demand is exposed before an alarm?</td></tr>
+        <tr><td>Redundancy</td><td>Does a single sensor failure create a blind spot?</td></tr>
+        <tr><td>Demand-weighting</td><td>Are high-consumption / critical nodes (hospitals, schools) covered first?</td></tr>
+      </table>
+      <div class="flag"><b>Honest method note.</b> A rigorous placement optimization requires the operator's calibrated
+        hydraulic model (EPANET) and demand data. The platform provides a placement <i>assessment</i> against these
+        standard objectives and flags coverage gaps and redundancy weaknesses; a final siting decision for a real network
+        must be confirmed with the operator's own hydraulic model and a licensed engineer. The product surfaces the
+        analysis; it does not replace professional hydraulic design.</div>
+
+      <!-- ───────────── PRE-DEPLOY ───────────── -->
+      <h2 id="predeploy">Change control: pre-deployment assessment</h2>
+      <p>Before any addition or change goes live, a standard change-management gate is applied:</p>
+      <ul>
+        <li><b>Compatibility assessment.</b> Confirm the change fits the existing schema/registry contract and integrates
+          with current SCADA/historian feeds, identity, and data stores without breaking interfaces.</li>
+        <li><b>Risk / benefit analysis.</b> Each addition is evaluated for benefit vs. operational, security, compliance
+          and data-governance risk, with the decision and rationale recorded in the audit trail.</li>
+        <li><b>Impact on the seal.</b> Because configuration is shape-folded, a proposed change's effect on the integrity
+          fingerprint is known before commit.</li>
+        <li><b>Approval &amp; sign-off.</b> RBAC-gated approval; classified or safety-relevant changes require elevated
+          authority and human sign-off.</li>
+      </ul>
+
+      <h3 id="testing">Pre- and post-deploy simulation &amp; testing</h3>
+      <ul>
+        <li><b>Pre-deploy simulation ("what-if").</b> The live simulation engine replays the change against
+          representative load, weather and fault scenarios before it touches production.</li>
+        <li><b>Regression testing.</b> An automated suite (unit, happy-path and non-happy-path, failure and recovery)
+          must pass before deploy; it has previously caught real defects (e.g., a pump-trip path that failed to zero
+          flow). Same inputs, same outputs — deterministic, reproducible.</li>
+        <li><b>Stress testing.</b> The system is exercised at and beyond expected scale and fault load (catastrophic
+          failure, freeze, leak/break, sensor loss) to confirm graceful degradation and recovery, pre- and
+          post-deployment.</li>
+        <li><b>Post-deploy verification.</b> After release, the seal is re-verified, the audit chain is checked, and live
+          monitors and alarms are confirmed against expected baselines.</li>
+      </ul>
+
+      <h3 id="rollback">Rollback procedures</h3>
+      <ol>
+        <li><b>Backup before change.</b> The prior configuration (and its manifold shape) is retained, so any commit has
+          a known-good predecessor to return to.</li>
+        <li><b>Detect.</b> Post-deploy verification, the failsafe drift monitor, or seal verification flags a problem.</li>
+        <li><b>Revert.</b> Restore the previous signed configuration / build; the manifold shape returns to its prior
+          fingerprint, proving the rollback is exact.</li>
+        <li><b>Re-verify.</b> Re-run seal verification, the audit-chain check and the regression suite to confirm the
+          restored state is intact.</li>
+        <li><b>Record.</b> The rollback itself is audited (who, when, why).</li>
+      </ol>
+      <p class="ref">The deployment pipeline follows standard practice: backup → validate configuration → atomic switch →
+        verify → automatic rollback on failure.</p>
+
+      <!-- ───────────── LEGAL ───────────── -->
+      <h2 id="legal">Legal disclaimers, liability &amp; insurance</h2>
+      <div class="stop">
+        <b>Demonstration &amp; simulation only — this instance cannot operate a real water system.</b> The hosted build
+        you are viewing runs the demo and simulations exclusively. It is not connected to, and must not be used to
+        operate, monitor or control, any real water system. Any entity using HydroManifold for real operations must run
+        its <b>own authorized, licensed copy on its own infrastructure</b> — its own server, cloud service, a laptop for
+        private/single use, or a networked system for enterprise use — under a deployment and support agreement. No real
+        operational data is, or should be, entered here.
+      </div>
+      <div class="stop">
+        <b>No experimental content — and no warranty of fitness without your own validation.</b> HydroManifold is built
+        solely from established, industry-standard and peer-reviewed methods and contains no experimental or unproven
+        theories. It is provided as decision-support and management software. It is <b>not</b> a substitute for certified
+        instrumentation, licensed professional engineering judgement, or the operator's regulatory obligations.
+      </div>
+      <h3>Disclaimer</h3>
+      <ul>
+        <li>The software is provided "as is", without warranty of merchantability or fitness for a particular purpose
+          beyond the documented, standards-based behaviour described here.</li>
+        <li>Real-time monitoring and forecasts are <b>decision support</b>. Forecasts are best-effort projections from
+          data and may be wrong; they must not be the sole basis for safety-critical action.</li>
+        <li>The demonstration build uses representative/simulated data and demonstration-grade cryptography; production
+          use requires integration with certified instruments and FIPS-validated cryptography.</li>
+      </ul>
+      <h3>Operator responsibility — independently verify, test &amp; approve</h3>
+      <p>Before relying on HydroManifold for any safety-critical or regulatory purpose, the operator must
+        <b>independently verify, test and approve</b> it: validate it against their own calibrated instruments and
+        hydraulic model, run their own acceptance and regression testing, confirm conformance to their applicable
+        regulations, and obtain sign-off from qualified licensed personnel. Continued suitability must be re-verified
+        after configuration changes.</p>
+      <h3>Liability &amp; insurance</h3>
+      <ul>
+        <li><b>Limitation of liability.</b> To the extent permitted by law, the provider's liability is limited as set
+          out in the governing licence/service agreement; the operator retains responsibility for water-quality and
+          safety outcomes.</li>
+        <li><b>Insurance.</b> Operators should maintain appropriate coverage for a system of this nature — typically
+          technology/professional liability (errors &amp; omissions), cyber liability, and general/operational coverage —
+          sized to their jurisdiction and risk. The provider should likewise carry professional and cyber liability
+          insurance. Specific limits should be set with qualified legal and insurance advisors.</li>
+        <li><b>Compliance ownership.</b> Regulatory compliance (SDWA and state equivalents) remains the operator's legal
+          responsibility; the software assists with, but does not assume, that obligation.</li>
+      </ul>
+      <p class="ref">This section is informational and is not legal advice. Engage qualified legal, regulatory and
+        insurance professionals to set terms for your jurisdiction.</p>
+
+      <!-- ───────────── REFERENCES ───────────── -->
+      <h2 id="references">References (established, peer-reviewed &amp; standards)</h2>
+      <ul class="ref">
+        <li>Fefferman, Mitter, Narayanan. "Testing the Manifold Hypothesis." <i>J. Amer. Math. Soc.</i>, 2016.</li>
+        <li>Cayton. "Algorithms for Manifold Learning." UCSD Tech. Report, 2005.</li>
+        <li>Bengio, Courville, Vincent. "Representation Learning: A Review and New Perspectives." <i>IEEE TPAMI</i>, 2013.</li>
+        <li>Pearson (1901); Hotelling (1933) — Principal Component Analysis.</li>
+        <li>Koren, Bell, Volinsky. "Matrix Factorization Techniques for Recommender Systems." <i>IEEE Computer</i>, 2009.</li>
+        <li>O'Connor &amp; Kleyner. <i>Practical Reliability Engineering.</i> Series-system reliability; MIL-HDBK-217F; IEC 61508.</li>
+        <li>Shewhart (1931); Page, "Continuous Inspection Schemes" (CUSUM, 1954); ISO 7870 — Statistical Process Control.</li>
+        <li>Box &amp; Jenkins. <i>Time Series Analysis: Forecasting and Control</i>, 1970; Holt–Winters exponential smoothing.</li>
+        <li>ISO 13374, ISO 17359, ISO 20816 — condition monitoring &amp; diagnostics of machines.</li>
+        <li>Rossman. <i>EPANET</i> (US EPA) — hydraulic &amp; water-quality modelling.</li>
+        <li>Ostfeld et al. "The Battle of the Water Sensor Networks." <i>J. Water Resour. Plan. Manage.</i>, 2008; EPA TEVA-SPOT.</li>
+        <li>Merkle. "A Certified Digital Signature" (Merkle trees), 1979; RFC 6962 — Certificate Transparency.</li>
+        <li>NIST FIPS 180-4 (SHA-2), FIPS 198-1 (HMAC), FIPS 186-5 (EdDSA/ECDSA), FIPS 197 (AES).</li>
+        <li>Ferraiolo &amp; Kuhn, RBAC (1992); ANSI INCITS 359-2004; NIST SP 800-207 (Zero Trust); Saltzer &amp; Schroeder (1975, least privilege).</li>
+        <li>ISA/IEC 62443 — industrial automation &amp; control systems security; AWWA G430; EPA AWIA risk &amp; resilience.</li>
+        <li>Leucker &amp; Schallhart. "A Brief Account of Runtime Verification." <i>J. Logic &amp; Algebraic Programming</i>, 2009.</li>
+        <li>US EPA Safe Drinking Water Act; National Primary Drinking Water Regulations (40 CFR 141); AWWA standards &amp; manuals.</li>
+        <li>DNP3 (IEEE 1815); Modbus — SCADA/telemetry protocols.</li>
+      </ul>
+
+      <div class="foot">HydroManifold — engineering, security &amp; scientific reference. Confidential, for review.
+        Built exclusively on established, industry-standard methods. No experimental or unproven theory is used.
+        <a class="link" href="docs.html">Back to documentation</a> ·
+        <a class="link" href="platform.html">Platform</a></div>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>try{mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{darkMode:true,background:'#0a111b',primaryColor:'#0e1622',lineColor:'#3fd0ff',fontFamily:'Segoe UI'}});}catch(e){}</script>
+</body>
+
+</html>

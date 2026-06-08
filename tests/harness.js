@@ -45,5 +45,6 @@ function report(title) {
   return state.fail;
 }
 function stats() { return { pass: state.pass, fail: state.fail }; }
+function details() { return { suites: JSON.parse(JSON.stringify(state.suites)), fails: state.fails.slice(), pass: state.pass, fail: state.fail }; }
 
-module.exports = { describe, it, ok, not, eq, ne, approx, gt, gte, lt, lte, inRange, throws, report, stats };
+module.exports = { describe, it, ok, not, eq, ne, approx, gt, gte, lt, lte, inRange, throws, report, stats, details };

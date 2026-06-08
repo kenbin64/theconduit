@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const USER = 'admin', PASS = 'quenchit';
+const USER = 'admin', PASS = 'quenchme';
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT) || 8787;
 const HOST = process.env.HOST || '127.0.0.1';   // set HOST=0.0.0.0 to expose on a VPS (or keep local behind nginx)

@@ -16,7 +16,7 @@ const crypto = require('crypto');
 const USER = 'admin', PASS = 'quenchit';
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT) || 8787;
-const HOST = '127.0.0.1';
+const HOST = process.env.HOST || '127.0.0.1';   // set HOST=0.0.0.0 to expose on a VPS (or keep local behind nginx)
 const sessions = new Set();   // valid session tokens (in-memory)
 
 const TYPES = {

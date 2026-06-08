@@ -47,7 +47,7 @@ fi
 say "Syncing files → $REMOTE:$DOCROOT"
 "${SSH[@]}" "mkdir -p $DOCROOT"
 tar --exclude='.git' --exclude='.gitignore' --exclude='.gitattributes' \
-    --exclude='tools' --exclude='deploy.sh' --exclude='node_modules' \
+    --exclude='tools' --exclude='tests' --exclude='deploy.sh' --exclude='node_modules' \
     --exclude='test_suite.js' --exclude='gen-health-image.js' -czf - . \
   | "${SSH[@]}" "tar -xzf - -C $DOCROOT"
 printf '\033[32m✓ files synced\033[0m\n'

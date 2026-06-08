@@ -241,6 +241,31 @@ hash-chained for FOIA/discovery.
 | `tools/issue-authorization.js` | Authority-side issuer for signed authorization tokens (+ samples) |
 | `tools/test-license.js` | Node tests for the authorization / commissioning / deploy gate |
 
+## Testing — proven, not asserted
+
+One command runs everything: `node tests/run.js` (**123 checks**, exit 0 = green).
+
+- **Unit** (`tests/unit-platform.test.js`) — the tamper-evident spine: manifold
+  seal (sign/verify, shape-fold chaining, encryption), hash-chained audit (with
+  tamper pinpointing), RBAC least-privilege/zero-trust, the failsafe-AI invariants
+  & drift quarantine, the registry, alert routing, connection-state machine,
+  notification rendering, and the analytics (least-squares, σ).
+- **Geometry / science proofs** (`tests/geometry.test.js`) — *proves* the paradigm
+  numerically: `z = x·y` collapses on any failing axis (and would-be averaging is
+  shown to be the bug); `z = x·y²` is justified by the `C(n,2)=O(n²)` combinatorics;
+  series reliability `R = ∏Rᵢ` is weakest-link; and the **Schwarz P/D & Gyroid**
+  surfaces are shown to be **triply periodic** and **minimal** (mean curvature ≈ 0
+  on the level set — measured mean&#124;H&#124; ≈ 0.02–0.10 vs ≈ 1.0 for a control
+  sphere, a ~59× discrimination).
+- **Scenarios** (`tests/scenarios.test.js`) — catastrophic multi-fault collapse and
+  recovery, worst-point dominance, failsafe quarantine that won't silently clear,
+  end-to-end tamper-evidence, and the go-live gate refusing a lapsed prerequisite.
+- **Stress** (`tests/stress.test.js`) — region scale (millions of sensors, bounded
+  render), 5 000-tick stability, audit/seal under thousands of events, performance
+  bounds, and a fault in *every* station at once.
+- Plus the original engine suite (`test_suite.js`, 27) and the licensing / go-live
+  gate suite (`tools/test-license.js`, 36).
+
 ## Honest limits
 
 It is a simulation, not a live SCADA connection; sensor specs and thresholds are

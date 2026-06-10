@@ -15,13 +15,16 @@
   const ease = (t) => t < 0 ? 0 : t > 1 ? 1 : (t * t * (3 - 2 * t));
   const colorForHealth = (z) => (MAN && MAN.colorForHealth) ? MAN.colorForHealth(z) : 'hsl(' + (z * 120) + ',80%,50%)';
   const tierForHealth = (z) => (MAN && MAN.statusForHealth) ? MAN.statusForHealth(z).tier : (z > 0.7 ? 'healthy' : z > 0.45 ? 'warning' : 'critical');
+  const fmtVal = (v) => v == null ? '—' : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2);
 
   function Net3D(canvas, net, opts) {
     opts = opts || {};
     this.c = canvas; this.ctx = canvas.getContext('2d');
     this.statusFn = opts.statusFn || (() => 1);          // node → health z (0..1)
     this.sensorFn = opts.sensorFn || (() => 1);          // (node, sensorId) → z
+    this.readingFn = opts.readingFn || (() => null);     // (node, sensorId) → {value,unit,status,untrusted} — REAL live data, never synthesized
     this.onHover = opts.onHover || function () {};
+    this.onSelect = opts.onSelect || function () {};     // node → user clicked it (not a drag)
     this.yaw = 0.7; this.pitch = 0.42; this.dist = 250; this.focal = 540; this.target = [0, 7, 0];
     this.autorotate = true; this.t = 0; this.hover = null; this.mouse = null;
     this.dpr = Math.min(root.devicePixelRatio || 1, 2);
@@ -101,16 +104,48 @@
     else if (n.type === 'treatment') { this._poly(box(pos, 11, 3, 7, base), col, al, grow); }
     else if (n.type === 'pump') { this._poly(box(pos, 4.5, 3, 4.5, base), col, al, grow); }
     else if (n.type === 'well') { this._poly(prism(pos, 2.4, 4, 8, base), col, al, grow); this._line(this.proj([pos[0], base, pos[2]]), this.proj([pos[0], base - 9, pos[2]]), col, 1, 0.5 * grow); }
+    else if (n.type === 'building') { this._poly(box(pos, 8, 34, 8, base), col, al, grow); }       // skyscraper — tall box
+    else if (n.type === 'dam') { this._poly(box(pos, 24, 7, 3, base), col, al, grow); }             // dam — wide wall
+    else if (n.type === 'machine') { this._poly(box(pos, 6, 4, 5, base), col, al, grow); }          // factory / process unit
     else { this._billboard(P, 9 * P.s * grow + 3, col, 0.9, look.blink ? look.blink.glow : 5); }   // junction / service
     ctx.shadowBlur = 0; ctx.globalAlpha = 1;
     // the BLINK: a pulsing ring in amber/red for warning/critical, intensity & radius by severity
     if (look.blink) { ctx.strokeStyle = look.blink.col; ctx.globalAlpha = look.blink.alpha; ctx.shadowColor = look.blink.col; ctx.shadowBlur = look.blink.glow; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(P.x, P.y, 12 + look.blink.sev * 7, 0, 7); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1; }
     // sensors arranged around the node top — each its own health color + blink
+    // detail = this node's on-screen scale; it grows as you zoom IN, gating Level-of-Detail
+    const detail = P.s;
     if (grow >= 0.6) {
       const sy = base + (n.type === 'tank_elevated' ? 23 : n.type === 'reservoir' ? 6 : 9);
-      (n.sensors || []).forEach((sid, k) => { const a = k / Math.max(n.sensors.length, 1) * Math.PI * 2; const sp = this.proj([pos[0] + Math.cos(a) * 6, sy, pos[2] + Math.sin(a) * 6]); const sl = this._look(this.sensorFn(n, sid)); this._billboard(sp, (3 + (sl.blink ? sl.blink.sev * 2.5 : 0)) * Math.max(sp.s, 0.5) + 1.5, sl.blink ? sl.blink.col : sl.base, sl.blink ? sl.blink.alpha : 0.95, sl.blink ? sl.blink.glow : 4); });
+      (n.sensors || []).forEach((sid, k) => {
+        const a = k / Math.max(n.sensors.length, 1) * Math.PI * 2; const sp = this.proj([pos[0] + Math.cos(a) * 6, sy, pos[2] + Math.sin(a) * 6]); const sl = this._look(this.sensorFn(n, sid));
+        this._billboard(sp, (3 + (sl.blink ? sl.blink.sev * 2.5 : 0)) * Math.max(sp.s, 0.5) + 1.5, sl.blink ? sl.blink.col : sl.base, sl.blink ? sl.blink.alpha : 0.95, sl.blink ? sl.blink.glow : 4);
+        // LOD tier 2 — zoomed in enough: reveal each sensor's REAL live value beside it (unhidden, not synthesized)
+        if (detail > 4.5) { const rd = this.readingFn(n, sid); if (rd) { ctx.globalAlpha = clamp((detail - 4.5) / 3, 0, 1); ctx.fillStyle = sl.blink ? sl.blink.col : sl.base; ctx.font = '10px ui-monospace,monospace'; ctx.textAlign = 'left'; ctx.fillText(fmtVal(rd.value) + (rd.unit || ''), sp.x + 6, sp.y + 3); ctx.globalAlpha = 1; } }
+      });
     }
     if (grow > 0.85) { const ly = base + (n.type === 'tank_elevated' ? 26 : n.type === 'reservoir' ? 9 : 11); const lp = this.proj([pos[0], ly, pos[2]]); ctx.fillStyle = '#cfe0f2'; ctx.font = '11px ui-monospace,monospace'; ctx.textAlign = 'center'; ctx.globalAlpha = clamp((grow - 0.85) / 0.15, 0, 1) * 0.9; ctx.fillText(n.name, lp.x, lp.y); ctx.globalAlpha = 1; }
+    // LOD tier 3 — very close: a full readout card of everything the schema/live feed actually holds for this node
+    if (detail > 7.5 && grow > 0.85) this._readout(n, z, P, clamp((detail - 7.5) / 4, 0, 1));
+  };
+
+  // honest level-of-detail card — every field is real schema or live data; nothing is invented to fill the zoom
+  Net3D.prototype._readout = function (n, z, P, alpha) {
+    const ctx = this.ctx, tier = tierForHealth(z), rows = [];
+    rows.push(['health z=x·y', z.toFixed(2) + ' · ' + tier, colorForHealth(z)]);
+    if (n.capacity != null) rows.push(['capacity', String(n.capacity), '#cfe0f2']);
+    if (n.elevation != null) rows.push(['elevation', n.elevation + ' ft', '#cfe0f2']);
+    if (n.gps) rows.push(['gps', String(n.gps), '#9fb4cb']);
+    (n.sensors || []).forEach((sid) => { const rd = this.readingFn(n, sid), col = colorForHealth(this.sensorFn(n, sid)); rows.push([sid.replace(/_/g, ' '), (rd ? fmtVal(rd.value) + (rd.unit || '') + (rd.untrusted ? ' ⚠' : '') : '—'), col]); });
+    const lh = 15, w = 196, h = 14 + 20 + rows.length * lh + 16;
+    let x = clamp(P.x + 20, 6, this.W - w - 6), y = clamp(P.y - h / 2, 6, this.H - h - 6);
+    ctx.globalAlpha = alpha; ctx.strokeStyle = '#3a536e'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(P.x, P.y); ctx.lineTo(x, y + h / 2); ctx.stroke();
+    ctx.fillStyle = 'rgba(8,15,24,.95)'; ctx.strokeStyle = '#2c4660'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.rect(x, y, w, h); ctx.fill(); ctx.stroke();
+    ctx.textAlign = 'left'; ctx.fillStyle = '#e7f1fb'; ctx.font = '600 12px "Segoe UI",system-ui,sans-serif'; ctx.fillText(n.name, x + 10, y + 17);
+    ctx.fillStyle = '#7f93ab'; ctx.font = '10px ui-monospace,monospace'; ctx.fillText(String(n.type).replace('_', ' '), x + 10, y + 31);
+    let yy = y + 31 + lh;
+    rows.forEach((r) => { ctx.fillStyle = '#7f93ab'; ctx.font = '11px ui-monospace,monospace'; ctx.textAlign = 'left'; ctx.fillText(r[0], x + 10, yy); ctx.fillStyle = r[2]; ctx.textAlign = 'right'; ctx.fillText(r[1], x + w - 10, yy); yy += lh; });
+    ctx.fillStyle = '#46586d'; ctx.font = '9px ui-monospace,monospace'; ctx.textAlign = 'left'; ctx.fillText('live schema data · nothing synthesized', x + 10, y + h - 7);
+    ctx.globalAlpha = 1; ctx.textAlign = 'left';
   };
   Net3D.prototype._legs = function (pos, r, grow, topY, botY) { for (let i = 0; i < 4; i++) { const a = (i / 4) * Math.PI * 2 + 0.4; const x = pos[0] + Math.cos(a) * r * 0.7, z = pos[2] + Math.sin(a) * r * 0.7; const top = this.proj(this._scaleV([x, topY, z], grow)), bot = this.proj(this._scaleV([x, botY, z], grow)); this._line(top, bot, '#5a7794', 1.4, 0.7); } };
   Net3D.prototype._line = function (a, b, col, w, alpha) { const ctx = this.ctx; ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.strokeStyle = col; ctx.lineWidth = w || 1; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.globalAlpha = 1; };
@@ -148,11 +183,13 @@
   // ── interaction ──
   Net3D.prototype._wire = function () {
     const el = this.c, self = this;
-    el.addEventListener('mousedown', (e) => { self.drag = { x: e.clientX, y: e.clientY, yaw: self.yaw, pitch: self.pitch }; });
+    el.addEventListener('mousedown', (e) => { self.drag = { x: e.clientX, y: e.clientY, yaw: self.yaw, pitch: self.pitch }; self._moved = false; });
     root.addEventListener('mouseup', () => { self.drag = null; });
-    el.addEventListener('mousemove', (e) => { const r = el.getBoundingClientRect(); self.mouse = { x: e.clientX - r.left, y: e.clientY - r.top }; if (self.drag) { self.yaw = self.drag.yaw + (e.clientX - self.drag.x) * 0.01; self.pitch = clamp(self.drag.pitch + (e.clientY - self.drag.y) * 0.008, -0.2, 1.35); } });
+    el.addEventListener('mousemove', (e) => { const r = el.getBoundingClientRect(); self.mouse = { x: e.clientX - r.left, y: e.clientY - r.top }; if (self.drag) { if (Math.abs(e.clientX - self.drag.x) + Math.abs(e.clientY - self.drag.y) > 5) self._moved = true; self.yaw = self.drag.yaw + (e.clientX - self.drag.x) * 0.01; self.pitch = clamp(self.drag.pitch + (e.clientY - self.drag.y) * 0.008, -0.2, 1.35); } });
+    // a click (not an orbit-drag) on a node selects it → opens the dimensional view
+    el.addEventListener('click', (e) => { if (self._moved) return; const r = el.getBoundingClientRect(); const mx = e.clientX - r.left, my = e.clientY - r.top; let best = null, bd = 28; self.net.nodes.forEach((n) => { const p = self.proj(n.pos); const d = Math.hypot(p.x - mx, p.y - my); if (d < bd) { bd = d; best = n; } }); if (best) self.onSelect(best); });
     el.addEventListener('mouseleave', () => { self.mouse = null; });
-    el.addEventListener('wheel', (e) => { e.preventDefault(); self.dist = clamp(self.dist * (1 + (e.deltaY > 0 ? 0.1 : -0.1)), 90, 600); }, { passive: false });
+    el.addEventListener('wheel', (e) => { e.preventDefault(); self.dist = clamp(self.dist * (1 + (e.deltaY > 0 ? 0.1 : -0.1)), 28, 1400); }, { passive: false });
     root.addEventListener('resize', () => self._resize());
   };
   Net3D.prototype._resize = function () { const r = this.c.getBoundingClientRect(); this.W = r.width || 800; this.H = r.height || 500; this.c.width = this.W * this.dpr; this.c.height = this.H * this.dpr; this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); };

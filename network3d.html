@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="index,follow">
 <title>The Conduit — 3D Water-Network Health</title>
 <style>
 :root{--bg:#070b12;--panel:#0e1622;--panel2:#121d2c;--edge:#1f2e42;--txt:#d8e6f5;--mut:#7f93ab;--acc:#3fd0ff;--ok:#27e07a;--warn:#ffc233;--alarm:#ff7a2f;--crit:#ff3b4e}
@@ -28,12 +28,47 @@
 .grad{height:12px;border-radius:6px;background:linear-gradient(90deg,hsl(0,85%,52%),hsl(40,90%,55%),hsl(80,85%,50%),hsl(120,75%,45%))}
 textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px solid var(--edge);border-radius:8px;padding:8px;font-family:ui-monospace,monospace;font-size:11px}
 .note{color:var(--mut);font-size:11.5px}.sensors span{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;border:1px solid var(--edge);border-radius:5px;padding:1px 6px;margin:2px 2px 0 0}
+/* ── Dimensional navigator (recursive thing → parts) ── */
+.dim-overlay{position:absolute;inset:0;z-index:20;background:radial-gradient(ellipse at 50% 42%,rgba(12,24,40,.94),rgba(5,9,16,.97));backdrop-filter:blur(2px);overflow:hidden;animation:dimIn .3s ease}
+@keyframes dimIn{from{opacity:0}to{opacity:1}}
+.dim-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:12px;flex-wrap:wrap}
+.dim-crumb{font-family:ui-monospace,monospace;opacity:.9}.dim-crumb.link{cursor:pointer;opacity:.65}.dim-crumb.link:hover{opacity:1;text-decoration:underline}.dim-crumb.here{font-weight:700}
+.dim-sep{color:var(--mut)}.dim-spacer{flex:1}
+.dim-btn{cursor:pointer;border:1px solid var(--edge);border-radius:7px;padding:4px 9px;color:var(--txt);background:rgba(18,29,44,.7);font-size:12px}.dim-btn:hover{border-color:var(--acc)}
+.dim-stage{position:absolute;inset:0;top:42px}
+.dim-thing{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .3s ease;will-change:transform,opacity}
+.dim-center{width:min(330px,76%);background:linear-gradient(180deg,rgba(16,28,44,.96),rgba(10,18,30,.96));border:1px solid var(--c);border-radius:16px;padding:16px 18px;box-shadow:0 0 0 1px rgba(0,0,0,.4),0 0 38px -6px var(--c);cursor:pointer}
+.dim-center.dim-open{box-shadow:0 0 0 1px rgba(0,0,0,.4),0 0 22px -10px var(--c)}
+.dim-part{width:132px;background:rgba(13,22,35,.96);border:1px solid var(--c);border-radius:12px;padding:9px 11px;cursor:pointer;box-shadow:0 0 18px -8px var(--c)}
+.dim-part:hover{background:rgba(20,33,50,.98);box-shadow:0 0 22px -6px var(--c)}
+.dim-kind{font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--mut)}
+.dim-center .dim-label{font-size:18px;font-weight:800;margin:2px 0 8px;color:#eaf3fc}
+.dim-part .dim-label{font-size:12.5px;font-weight:700;color:#dcebf9}
+.dim-facts{border-top:1px solid var(--edge);padding-top:6px}
+.dim-row{display:flex;justify-content:space-between;gap:10px;font-family:ui-monospace,monospace;font-size:12px;padding:2px 0}.dim-row .k{color:var(--mut)}.dim-row .v{color:#dcebf9;font-weight:600}
+.dim-hint{margin-top:9px;font-size:10.5px;color:var(--mut);text-align:center}
+.dim-sub{font-family:ui-monospace,monospace;font-size:11px;color:var(--c);margin-top:3px}
+.dim-more{position:absolute;top:6px;right:9px;color:var(--mut);font-size:12px;letter-spacing:1px}
+.dim-rise{z-index:5}
+.dim-atomic{animation:dimShake .32s}
+@keyframes dimShake{0%,100%{transform:translate(-50%,-50%) scale(1)}25%{transform:translate(-52%,-50%) scale(1)}75%{transform:translate(-48%,-50%) scale(1)}}
+.dim-open-hint{position:absolute;left:0;right:0;bottom:14px;text-align:center;color:var(--mut);font-size:11px}
 </style>
 </head>
 <body>
 <div class="top">
   <div class="brand"><span id="brandname">HydroManifold</span> <span class="eq">3D Network · z = x·y</span><small>Water-system health — live, schema-built</small></div>
   <span class="spacer"></span>
+  <select class="btn" id="system" title="Kind of system to simulate and 3D-diagram">
+    <option value="sample">Weber Basin (demo)</option>
+    <option value="municipal">Municipal water</option>
+    <option value="dam">Dam &amp; reservoir</option>
+    <option value="treatment">Water treatment plant</option>
+    <option value="sewer">Sewer / wastewater</option>
+    <option value="skyscraper">Skyscraper</option>
+    <option value="factory">Factory</option>
+  </select>
+  <button class="btn" id="dim" title="Dimensional drill-down — one thing reveals its parts, click a part to dive in">◈ Dimensional</button>
   <button class="btn on" id="rot">⟳ Auto-rotate</button>
   <button class="btn" id="inject">⚠ Inject fault</button>
   <button class="btn" id="clear">✓ Clear faults</button>
@@ -41,7 +76,7 @@ textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px 
   <a class="btn" href="index.html">▦ Live monitoring</a>
 </div>
 <div class="layout">
-  <div id="stage"><canvas id="net"></canvas><div class="hint">drag to orbit · scroll to zoom · hover a node for detail</div></div>
+  <div id="stage"><canvas id="net"></canvas><div class="hint">drag to orbit · scroll to zoom · <b>zoom in close to reveal live readings</b> · hover for detail</div></div>
   <div class="side">
     <div class="card"><h3>Selected node</h3><div id="info"><div class="note">Hover or touch a node in the 3D view.</div></div></div>
     <div class="card"><h3>System</h3><div id="sys"></div></div>
@@ -71,6 +106,7 @@ textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px 
 <script src="platform/schemas.js"></script>
 <script src="network.js"></script>
 <script src="net3d.js"></script>
+<script src="dimensional.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -87,6 +123,8 @@ textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px 
   function stationFor(node) { return sim.stations[(node.station || 0) % sim.stations.length]; }
   function statusFn(node) { return stationFor(node).health.z; }
   function sensorFn(node, sid) { var st = stationFor(node), m = SENSOR_MEASURE[sid], r = st && st.readings && st.readings[m]; if (r && r.status && STATUS_Z[r.status] != null) return STATUS_Z[r.status]; return st ? st.health.z : 0.9; }
+  // REAL live reading for a sensor (value + unit + status) — fed to the 3D LOD, never synthesized
+  function readingFn(node, sid) { var st = stationFor(node), m = SENSOR_MEASURE[sid], r = st && st.readings && st.readings[m]; if (!r) return null; return { value: r.value, unit: r.unit, status: r.status, untrusted: r.untrusted }; }
 
   function fmt(v) { return Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2); }
   function onHover(node) {
@@ -100,7 +138,41 @@ textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px 
     $('info').innerHTML = rows + '<div class="note" style="margin:6px 0 2px">Sensors (' + (node.sensors || []).length + ')</div><div class="sensors">' + s + '</div>';
   }
 
-  var net = new HM_NET3D.Net3D($('net'), window.HM_NETWORK.SAMPLE, { statusFn: statusFn, sensorFn: sensorFn, onHover: onHover });
+  // ── Dimensional navigator: every "thing" reveals its REAL parts (system → nodes → sensors → live reading + thresholds) ──
+  var DIM = window.HM_DIM.create({ mount: $('stage') });
+  function fT(v) { return v == null ? '—' : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2); }
+  function leafThing(label, val, color) { return { id: label + '|' + val, label: label, kind: 'threshold', color: color || '#9fb4cb', facts: [['value', val]], parts: null }; }
+  function bandParts(measure) {
+    var b = window.HM_ENGINE.BANDS[measure]; if (!b) return []; var u = b.unit || '', P = [];
+    if (b.good) P.push(leafThing('good range', b.good[0] + '–' + b.good[1] + ' ' + u, '#27e07a'));
+    var warn = [b.warnLo, b.warnHi].filter(function (x) { return x != null; }); if (warn.length) P.push(leafThing('warning', warn.join(' / ') + ' ' + u, '#ffc233'));
+    var al = [b.alarmLo, b.alarmHi].filter(function (x) { return x != null; }); if (al.length) P.push(leafThing('alarm', al.join(' / ') + ' ' + u, '#ff7a2f'));
+    if (b.critLo != null) P.push(leafThing('critical', '< ' + b.critLo + ' ' + u, '#ff3b4e'));
+    return P;
+  }
+  function sensorThing(node, sid) {
+    var m = SENSOR_MEASURE[sid], rd = readingFn(node, sid), col = MAN.colorForHealth(sensorFn(node, sid)), bands = bandParts(m);
+    return { id: node.id + ':' + sid, label: sid.replace(/_/g, ' '), kind: 'sensor', color: col,
+      facts: [['measure', m || '—'], ['reading', rd ? fT(rd.value) + (rd.unit || '') : '—'], ['status', rd ? rd.status : '—']],
+      parts: bands.length ? function () { return bandParts(m); } : null };
+  }
+  function nodeThing(node) {
+    var z = statusFn(node), col = MAN.colorForHealth(z), st = MAN.statusForHealth(z);
+    var facts = [['type', String(node.type).replace('_', ' ')], ['health', z.toFixed(2) + ' · ' + st.label]];
+    if (node.capacity) facts.push(['capacity', String(node.capacity)]);
+    if (node.elevation != null) facts.push(['elevation', node.elevation + ' ft']);
+    if (node.gps) facts.push(['gps', String(node.gps)]);
+    return { id: node.id, label: node.name, kind: String(node.type).replace('_', ' '), color: col, facts: facts,
+      parts: (node.sensors && node.sensors.length) ? function () { return node.sensors.map(function (sid) { return sensorThing(node, sid); }); } : null };
+  }
+  function systemThing() {
+    var agg = sim.aggregate(), col = MAN.colorForHealth(agg.z), st = MAN.statusForHealth(agg.z), N = window.HM_NETWORK.SAMPLE;
+    return { id: '__system', label: N.name || 'Water system', kind: 'system', color: col,
+      facts: [['health', agg.z.toFixed(2) + ' · ' + st.label], ['nodes', N.nodes.length], ['mains', N.pipes.length]],
+      parts: function () { return N.nodes.map(nodeThing); } };
+  }
+
+  var net = new HM_NET3D.Net3D($('net'), window.HM_NETWORK.SAMPLE, { statusFn: statusFn, sensorFn: sensorFn, readingFn: readingFn, onHover: onHover, onSelect: function (node) { DIM.open(nodeThing(node)); } });
 
   // system summary refresh
   setInterval(function () {
@@ -113,8 +185,18 @@ textarea{width:100%;height:150px;background:#0a131e;color:var(--txt);border:1px 
   }, 600);
 
   // controls
+  $('dim').addEventListener('click', function () { DIM.open(systemThing()); });
   $('rot').addEventListener('click', function () { this.classList.toggle('on'); net.setAutorotate(this.classList.contains('on')); });
   $('reset').addEventListener('click', function () { net.reset(); });
+  // pick the kind of system to simulate — rebuilds the 3D diagram from a preset
+  $('system').addEventListener('change', function () {
+    var net2 = window.HM_NETWORK.getPreset($('system').value);
+    window.HM_NETWORK.SAMPLE = net2;
+    net.setNetwork(net2);
+    net.reset();
+    $('schema').value = JSON.stringify(net2, null, 1);
+    $('schemaMsg').innerHTML = '<span style="color:var(--ok)">✓ ' + (net2.name || '') + ' · ' + net2.nodes.length + ' nodes</span>';
+  });
   $('inject').addEventListener('click', function () { var nodes = window.HM_NETWORK.SAMPLE.nodes; var n = nodes[Math.floor(Math.random() * nodes.length)]; var st = stationFor(n); var types = ['leak', 'break', 'freeze', 'pump_trip', 'sensor', 'quality']; sim.injectFault(st.id, types[Math.floor(Math.random() * types.length)]); });
   $('clear').addEventListener('click', function () { sim.clearFaults(); });
 

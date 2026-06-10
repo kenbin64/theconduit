@@ -58,5 +58,5 @@ say "Restarting $SERVICE"
 
 # ── 4. verify ────────────────────────────────────────────────────────────────
 code=$(curl -sk -m12 -o /dev/null -w '%{http_code}' "$URL/" 2>/dev/null || echo 000)
-echo "   $URL → HTTP $code  (200 = login page up)"
-printf '\033[32m✓ deployed\033[0m  → %s   (login: admin / quenchme)\n' "$URL"
+echo "   $URL → HTTP $code  (200 = app up)"
+printf '\033[32m✓ deployed\033[0m  → %s   (public demo, no login)\n' "$URL"

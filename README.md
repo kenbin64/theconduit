@@ -1,4 +1,7 @@
-# HydroManifold — Water-System Telemetry & Health Monitoring
+# The Conduit: Water-System Telemetry and Health Monitoring
+
+> Live demo: https://theconduit.me. The health engine is **HydroManifold**, the
+> z = x·y monitoring core; The Conduit is the product built on it.
 
 A functional, real-world-grounded simulation of water-system monitoring, from a
 single home to a regional supply. It demonstrates how one monitoring framework

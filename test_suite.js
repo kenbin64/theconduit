@@ -10,6 +10,19 @@
  * No dependencies. Exit code 0 = all green.
  * ========================================================================== */
 'use strict';
+// Deterministic RNG: seed Math.random so the stochastic simulation (sensor noise,
+// fault dynamics, weather, economics) produces the same sequence every run. This
+// removes threshold flakiness and makes the suite reproducible, byte for byte.
+(function () {
+  let s = 0x9e3779b9 >>> 0;
+  Math.random = function () {
+    s = (s + 0x6d2b79f5) >>> 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), 1 | t);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+})();
 require('./sensors'); require('./manifold'); require('./topology'); require('./engine');
 require('./weather'); require('./forecast'); require('./analysis'); require('./economics'); require('./ops');
 const S = globalThis.HM_SENSORS, M = globalThis.HM_MANIFOLD, T = globalThis.HM_TOPOLOGY,
